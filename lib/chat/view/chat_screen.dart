@@ -38,6 +38,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void initState() {
+    _scrollController.addListener(_loadMoreMessages);
     super.initState();
     _initAsync();
   }
