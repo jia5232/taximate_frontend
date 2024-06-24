@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import '../../board/view/board_detail_screen.dart';
 import '../../board/view/board_list_screen.dart';
 import '../../common/view/root_tab.dart';
 import '../../common/view/splash_screen.dart';
+import '../../post/model/post_model.dart';
 import '../model/member_model.dart';
 import '../view/login_screen.dart';
 import 'member_state_notifier_provider.dart';
@@ -57,8 +60,11 @@ class AuthProvider extends ChangeNotifier {
     ),
     GoRoute(
       path: '/boardDetail',
-      name: BoardDetailScreen.routeName,
-      builder: (context, state) => BoardDetailScreen(),
+      name: 'boardDetail',
+      builder: (context, state) {
+        final postModel = state.extra as PostModel;
+        return BoardDetailScreen(postModel: postModel);
+      },
     ),
   ];
 

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:taximate/post/model/post_model.dart';
 
 import '../../common/layout/default_layout.dart';
 
 class BoardDetailScreen extends StatefulWidget {
   static String get routeName => 'boardDetail';
+  final PostModel postModel;
 
-  const BoardDetailScreen({super.key});
+  const BoardDetailScreen({
+    super.key,
+    required this.postModel,
+  });
 
   @override
   State<BoardDetailScreen> createState() => _BoardDetailScreenState();
@@ -24,13 +29,13 @@ class _BoardDetailScreenState extends State<BoardDetailScreen> {
           bottom: false,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Text('board detail screen'),
-                ),
-              ],
+            child: Center(
+              child: Column(
+                children: [
+                  Text('Depart: ${widget.postModel.depart}'),
+                  Text('Arrive: ${widget.postModel.arrive}'),
+                ],
+              ),
             ),
           ),
         ),

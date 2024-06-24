@@ -22,6 +22,7 @@ import '../../common/const/data.dart';
 import '../../member/model/member_model.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
 import '../component/post_card.dart';
+import '../model/post_model.dart';
 
 class PostScreen extends ConsumerStatefulWidget {
   const PostScreen({Key? key}) : super(key: key);
@@ -106,7 +107,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     );
   }
 
-  Future<void> joinPost(int postId) async {
+  Future<void> joinPost(int postId, PostModel detailedPostModel) async {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
@@ -118,7 +119,10 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        context.goNamed('boardDetail');
+        context.goNamed(
+          'boardDetail',
+          extra: detailedPostModel,
+        );
       }
     } on DioException catch (e) {
       showDialog(
@@ -463,9 +467,12 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           );
                           final isMemberJoinedPost = resp.data;
                           if (!isMemberJoinedPost) {
-                            await joinPost(pItem.id);
+                            await joinPost(pItem.id, detailedPostModel);
                           } else {
-                            context.goNamed('boardDetail');
+                            context.goNamed(
+                              'boardDetail',
+                              extra: detailedPostModel,
+                            );
                           }
                         } on DioException catch (e) {
                           getNoticeDialog(
