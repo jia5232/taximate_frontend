@@ -33,7 +33,7 @@ class _BoardListRepository implements BoardListRepository {
     )
             .compose(
               _dio.options,
-              '/my',
+              '/joined',
               queryParameters: queryParameters,
               data: _data,
             )

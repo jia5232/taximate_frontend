@@ -18,6 +18,10 @@ class BoardListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> departTimeParts = boardListModel.departTime.split(" ");
+    String datePart = departTimeParts.length > 0 ? departTimeParts[0] : "";
+    String timePart = departTimeParts.length > 1 ? departTimeParts[1] : "";
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       width: MediaQuery.of(context).size.width,
@@ -58,7 +62,7 @@ class BoardListCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                '${boardListModel.departTime.split(" ")[0]}일 ${boardListModel.departTime.split(" ")[1]} 출발',
+                '$datePart일 $timePart 출발',
                 style: TextStyle(
                   fontSize: 12.0,
                 ),
@@ -72,3 +76,4 @@ class BoardListCard extends StatelessWidget {
     );
   }
 }
+

@@ -90,10 +90,10 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.chat,
+              Icons.people,
               size: 30.0,
             ),
-            label: '채팅',
+            label: '모임',
           ),
           BottomNavigationBarItem(
             icon: Icon(

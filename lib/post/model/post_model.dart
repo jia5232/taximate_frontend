@@ -1,6 +1,8 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../board/model/board_list_model.dart';
+
 part 'post_model.g.dart';
 
 @JsonSerializable()
@@ -51,5 +53,21 @@ class PostModel {
     // String formattedDate = dateTime.toIso8601String(); -> postFormScreen에서 처리해서 String으로 넘긴다.
     String formattedDateWithoutZ = formattedDate.replaceAll('Z', '');
     return formattedDateWithoutZ; //타임존 설정은 스프링부트 서버에서 하도록 한다.
+  }
+
+  static PostModel fromBoardListModel(BoardListModel boardListModel) {
+    return PostModel(
+      id: boardListModel.id,
+      isFromSchool: boardListModel.isFromSchool,
+      depart: boardListModel.depart,
+      arrive: boardListModel.arrive,
+      departTime: boardListModel.departTime,
+      cost: boardListModel.cost,
+      maxMember: boardListModel.maxMember,
+      nowMember: boardListModel.nowMember,
+      isAuthor: boardListModel.isAuthor,
+      openChatLink: boardListModel.openChatLink,
+      authorName: boardListModel.authorName,
+    );
   }
 }
