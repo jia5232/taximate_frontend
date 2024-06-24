@@ -63,7 +63,7 @@ class AuthProvider extends ChangeNotifier {
       name: 'boardDetail',
       builder: (context, state) {
         final postModel = state.extra as PostModel;
-        return BoardDetailScreen(postModel: postModel);
+        return BoardDetailScreen(post: postModel);
       },
     ),
   ];
