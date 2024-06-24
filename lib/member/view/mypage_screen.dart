@@ -188,7 +188,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     if (memberState is MemberModel) {
 
       final response = await dio.delete(
-        "http://$apiServerBaseUrl/member",
+        "http://$ip/member",
         options: Options(
           headers: {
             'Content-Type': 'application/json',

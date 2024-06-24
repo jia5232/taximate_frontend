@@ -11,6 +11,7 @@ class PostCard extends StatelessWidget {
   final int maxMember;
   final int nowMember;
   final bool isAuthor;
+  final String authorName;
 
   const PostCard({
     required this.isFromSchool,
@@ -20,6 +21,7 @@ class PostCard extends StatelessWidget {
     required this.maxMember,
     required this.nowMember,
     required this.isAuthor,
+    required this.authorName,
     super.key,
   });
 
@@ -32,6 +34,7 @@ class PostCard extends StatelessWidget {
       maxMember: postModel.maxMember,
       nowMember: postModel.nowMember,
       isAuthor: postModel.isAuthor,
+      authorName: postModel.authorName,
     );
   }
 
@@ -44,9 +47,11 @@ class PostCard extends StatelessWidget {
     final startOfToday = DateTime(now.year, now.month, now.day);
     final startOfTomorrow = startOfToday.add(Duration(days: 1));
 
-    if (parsedDate.isAfter(startOfToday) && parsedDate.isBefore(startOfTomorrow)) {
+    if (parsedDate.isAfter(startOfToday) &&
+        parsedDate.isBefore(startOfTomorrow)) {
       return '오늘';
-    } else if (parsedDate.isAfter(startOfTomorrow) && parsedDate.isBefore(startOfTomorrow.add(Duration(days: 1)))) {
+    } else if (parsedDate.isAfter(startOfTomorrow) &&
+        parsedDate.isBefore(startOfTomorrow.add(Duration(days: 1)))) {
       return '내일';
     } else {
       return '${dateFormatter.format(parsedDate)}일';
@@ -101,8 +106,15 @@ class PostCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('현재인원 $nowMember/$maxMember'),
+                Text('방장: $authorName'),
+                SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  '현재인원 $nowMember/$maxMember',
+                ),
               ],
             ),
           ),
@@ -119,9 +131,9 @@ class _MainText extends StatelessWidget {
 
   const _MainText(
       {required this.isFromSchool,
-        required this.depart,
-        required this.arrive,
-        super.key});
+      required this.depart,
+      required this.arrive,
+      super.key});
 
   @override
   Widget build(BuildContext context) {

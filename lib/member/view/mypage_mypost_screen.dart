@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taximate/common/layout/default_layout.dart';
 
-import '../../chat/provider/chat_room_id_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/colors.dart';
 import '../../common/const/data.dart';
@@ -53,7 +52,7 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$apiServerBaseUrl/posts/$postId",
+                "http://$ip/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',
@@ -174,8 +173,7 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
                     cost: detailedPostModel.cost,
                     isAuthor: detailedPostModel.isAuthor,
                     joinOnPressed: () {
-                      ref.read(chatRoomIdProvider.notifier).state = detailedPostModel.chatRoomId;
-                      context.goNamed('chat');
+                      context.goNamed('boardDetail');
                     },
                     deleteOnPressed: () {
                       noticeBeforeDeleteDialog(context, pItem.id);

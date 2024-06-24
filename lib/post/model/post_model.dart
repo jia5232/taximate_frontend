@@ -6,7 +6,6 @@ part 'post_model.g.dart';
 @JsonSerializable()
 class PostModel {
   final int id;
-  final int chatRoomId;
   final bool isFromSchool;
   final String depart;
   final String arrive;
@@ -19,10 +18,11 @@ class PostModel {
   final int maxMember;
   final int nowMember;
   final bool isAuthor;
+  final String openChatLink;
+  final String authorName;
 
   PostModel({
     required this.id,
-    required this.chatRoomId,
     required this.isFromSchool,
     required this.depart,
     required this.arrive,
@@ -31,10 +31,11 @@ class PostModel {
     required this.maxMember,
     required this.nowMember,
     required this.isAuthor,
+    required this.openChatLink,
+    required this.authorName,
   });
 
-  factory PostModel.fromJson(Map<String, dynamic> json) =>
-      _$PostModelFromJson(json);
+  factory PostModel.fromJson(Map<String, dynamic> json) => _$PostModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$PostModelToJson(this);
 

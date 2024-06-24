@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:taximate/chat/view/chat_list_screen.dart';
-import 'package:taximate/common/layout/default_layout.dart';
-import 'package:taximate/post/view/post_screen.dart';
 
-import '../../chat/provider/chat_room_state_notifier_provider.dart';
+import '../../board/view/board_list_screen.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
 import '../../member/view/mypage_screen.dart';
 import '../../post/provider/post_state_notifier_provider.dart';
+import '../../post/view/post_screen.dart';
 import '../const/colors.dart';
+import '../layout/default_layout.dart';
 
 class RootTab extends ConsumerStatefulWidget {
   static String get routeName => 'home';
@@ -46,8 +45,6 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
         ref.read(postStateNotifierProvider.notifier).paginate(forceRefetch: true);
         break;
       case 1:
-        ref.read(chatRoomStateNotifierProvider.notifier).resetLastPostId(); //lastPostId 초기화
-        ref.read(chatRoomStateNotifierProvider.notifier).paginate(forceRefetch: true);
         break;
       case 2:
         ref.read(memberStateNotifierProvider);
@@ -69,7 +66,7 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
         controller: controller,
         children: [
           PostScreen(),
-          ChatListScreen(),
+          BoardListScreen(),
           MyPageScreen(),
         ],
       ),

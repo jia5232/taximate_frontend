@@ -55,7 +55,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
     try {
       final response = await dio.get(
-        "http://$apiServerBaseUrl/posts/${widget.postId}",
+        "http://$ip/posts/${widget.postId}",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -534,7 +534,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 maxMember <= 4) {
                               try {
                                 final resp = await dio.put(
-                                  "http://$apiServerBaseUrl/posts/${widget.postId}",
+                                  "http://$ip/posts/${widget.postId}",
                                   data: {
                                     'isFromSchool': isFromSchool,
                                     'depart': depart,

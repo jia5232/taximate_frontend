@@ -36,7 +36,7 @@ class _CompleteRegistrationScreenState extends ConsumerState<CompleteRegistratio
 
     try {
       final resp = await dio.post(
-        'http://$apiServerBaseUrl/signup',
+        'http://$ip/signup',
         data: {
           'email': widget.email,
           'password': widget.password,

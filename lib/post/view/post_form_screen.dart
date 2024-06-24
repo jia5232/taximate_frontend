@@ -491,7 +491,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                                 maxMember <= 4) {
                               try {
                                 final resp = await dio.post(
-                                  "http://$apiServerBaseUrl/posts/create",
+                                  "http://$ip/posts/create",
                                   data: {
                                     'isFromSchool': isFromSchool,
                                     'depart': depart,

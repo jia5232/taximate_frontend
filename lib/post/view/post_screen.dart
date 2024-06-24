@@ -17,7 +17,6 @@ import 'package:taximate/post/provider/post_state_notifier_provider.dart';
 import 'package:taximate/post/provider/university_short_name_provider.dart';
 import 'package:taximate/post/view/post_form_screen.dart';
 import 'package:taximate/post/view/post_update_form_screen.dart';
-import '../../chat/provider/chat_room_id_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
 import '../../member/model/member_model.dart';
@@ -47,12 +46,10 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   }
 
   void scrollListener() {
-    // 현재 위치가 최대 길이보다 조금 덜되는 위치까지 왔다면 새로운 데이터를 추가 요청.
-    // 현재 컨트롤러 위치가(controller.offset) 컨트롤러의 최대 크기 - n 보다 크면 요청을 보낸다.
     if (controller.offset > controller.position.maxScrollExtent - 150) {
       ref.read(postStateNotifierProvider.notifier).paginate(
-            fetchMore: true,
-          );
+        fetchMore: true,
+      );
     }
   }
 
@@ -82,7 +79,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$apiServerBaseUrl/posts/$postId",
+                "http://$ip/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',
@@ -109,11 +106,11 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     );
   }
 
-  Future<void> joinChatRoom(int postId) async {
+  Future<void> joinPost(int postId) async {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
-        "http://$commonServerBaseUrl/chatrooms/join/$postId",
+        "http://$ip/posts/join/$postId",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -121,7 +118,37 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        context.goNamed('chat');
+        context.goNamed('boardDetail');
+      }
+    } on DioException catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return NoticePopupDialog(
+            message: e.response?.data["message"] ?? "에러 발생",
+            buttonText: "닫기",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> leavePost(int postId) async {
+    final dio = ref.read(dioProvider);
+    try {
+      final resp = await dio.post(
+        "http://$ip/posts/leave/$postId",
+        options: Options(
+          headers: {
+            'accessToken': 'true',
+          },
+        ),
+      );
+      if (resp.statusCode == 200) {
+        ref.refresh(postStateNotifierProvider);
       }
     } on DioException catch (e) {
       showDialog(
@@ -142,7 +169,6 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   @override
   Widget build(BuildContext context) {
     final data = ref.watch(postStateNotifierProvider);
-    //postStateNotifierProvider가 postRepository에서 받아온 값을 그대로 돌려주므로 Future builder가 필요없어짐..
 
     return DefaultLayout(
       child: SafeArea(
@@ -192,7 +218,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     String univName = "";
 
     if (memberState is MemberModel) {
-      univName = memberState.univName; // ex.'국민대학교'
+      univName = memberState.univName;
     }
 
     return Container(
@@ -254,7 +280,6 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     );
   }
 
-
   Widget _buildToggleButton(WidgetRef ref, BuildContext context) {
     double borderWidth = 1;
 
@@ -281,8 +306,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       renderBorder: true,
       constraints: BoxConstraints.expand(
         width: MediaQuery.of(context).size.width / 2 -
-            borderWidth * 2, // 화면의 너비를 2로 나누어 각 버튼의 너비를 지정
-        height: 40, // 버튼의 높이를 40으로 지정
+            borderWidth * 2,
+        height: 40,
       ),
       textStyle: TextStyle(fontSize: 18.0),
       selectedColor: Colors.black,
@@ -290,7 +315,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   }
 
   Widget _buildTextFormField(WidgetRef ref, BuildContext context) {
-    bool fromSchool = ref.watch(fromSchoolProvider); //학교에서 출발
+    bool fromSchool = ref.watch(fromSchoolProvider);
     String? searchWord = ref.read(searchKeywordProvider.notifier).state;
 
     return Padding(
@@ -388,7 +413,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-          (BuildContext context, int index) {
+              (BuildContext context, int index) {
             if (index.isOdd) {
               return SizedBox(height: 16.0);
             }
@@ -398,8 +423,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               return Center(
                 child: cp is CursorPaginationModelFetchingMore
                     ? CircularProgressIndicator(
-                        color: PRIMARY_COLOR,
-                      )
+                  color: PRIMARY_COLOR,
+                )
                     : SizedBox.shrink(),
               );
             }
@@ -429,22 +454,18 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                         final dio = ref.read(dioProvider);
                         try {
                           final resp = await dio.get(
-                            'http://$commonServerBaseUrl/chatrooms/is-joined/${pItem.id}',
+                            'http://$ip/posts/is-joined/${pItem.id}',
                             options: Options(
                               headers: {
                                 'accessToken': 'true',
                               },
                             ),
                           );
-                          final isMemberJoinedChatRoom = resp.data;
-                          if (!isMemberJoinedChatRoom) {
-                            await joinChatRoom(pItem.id);
-                            ref.read(chatRoomIdProvider.notifier).state =
-                                detailedPostModel.chatRoomId;
+                          final isMemberJoinedPost = resp.data;
+                          if (!isMemberJoinedPost) {
+                            await joinPost(pItem.id);
                           } else {
-                            ref.read(chatRoomIdProvider.notifier).state =
-                                detailedPostModel.chatRoomId;
-                            context.goNamed('chat');
+                            context.goNamed('boardDetail');
                           }
                         } on DioException catch (e) {
                           getNoticeDialog(

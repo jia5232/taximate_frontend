@@ -8,7 +8,6 @@ part of 'post_model.dart';
 
 PostModel _$PostModelFromJson(Map<String, dynamic> json) => PostModel(
       id: (json['id'] as num).toInt(),
-      chatRoomId: (json['chatRoomId'] as num).toInt(),
       isFromSchool: json['isFromSchool'] as bool,
       depart: json['depart'] as String,
       arrive: json['arrive'] as String,
@@ -17,11 +16,12 @@ PostModel _$PostModelFromJson(Map<String, dynamic> json) => PostModel(
       maxMember: (json['maxMember'] as num).toInt(),
       nowMember: (json['nowMember'] as num).toInt(),
       isAuthor: json['isAuthor'] as bool,
+      openChatLink: json['openChatLink'] as String,
+      authorName: json['authorName'] as String,
     );
 
 Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
       'id': instance.id,
-      'chatRoomId': instance.chatRoomId,
       'isFromSchool': instance.isFromSchool,
       'depart': instance.depart,
       'arrive': instance.arrive,
@@ -30,4 +30,6 @@ Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
       'maxMember': instance.maxMember,
       'nowMember': instance.nowMember,
       'isAuthor': instance.isAuthor,
+      'openChatLink': instance.openChatLink,
+      'authorName': instance.authorName,
     };
