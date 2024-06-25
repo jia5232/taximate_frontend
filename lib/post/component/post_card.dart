@@ -142,6 +142,7 @@ class _MainText extends StatelessWidget {
         '$arrive 도착',
         style: TextStyle(
           fontSize: 16.0,
+          fontWeight: FontWeight.w700,
         ),
       );
     else //학교로 도착
@@ -149,6 +150,7 @@ class _MainText extends StatelessWidget {
         '$depart 출발',
         style: TextStyle(
           fontSize: 16.0,
+          fontWeight: FontWeight.w700,
         ),
       );
   }

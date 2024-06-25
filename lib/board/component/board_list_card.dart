@@ -31,51 +31,61 @@ class BoardListCard extends StatelessWidget {
     );
 
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      width: MediaQuery.of(context).size.width,
-      height: 100.0,
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.transparent),
-          bottom: BorderSide(color: Colors.grey.shade400),
-          left: BorderSide(color: Colors.transparent),
-          right: BorderSide(color: Colors.transparent),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8.0,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(boardListModel.depart),
+              Text(
+                boardListModel.depart,
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(
                   Icons.arrow_forward,
-                  size: 14.0,
+                  size: 16.0,
+                  color: Colors.grey,
                 ),
               ),
-              Text(boardListModel.arrive),
-              SizedBox(width: 8.0),
+              Text(
+                boardListModel.arrive,
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+              Spacer(),
               Icon(
                 Icons.person,
                 color: PRIMARY_COLOR,
                 size: 18.0,
               ),
-              Text(boardListModel.nowMember.toString()),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+              SizedBox(width: 4.0),
               Text(
-                '$datePart일 $timePart분 출발',
-                style: TextStyle(
-                  fontSize: 12.0,
-                ),
+                boardListModel.nowMember.toString(),
+                style: TextStyle(fontSize: 16.0),
               ),
             ],
+          ),
+          SizedBox(height: 8.0),
+          Text(
+            '$datePart일 $timePart분 출발',
+            style: TextStyle(
+              fontSize: 12.0,
+              color: Colors.grey[600],
+            ),
           ),
           SizedBox(height: 10.0),
           Row(
@@ -88,11 +98,15 @@ class BoardListCard extends StatelessWidget {
                 '${boardListModel.cost}',
                 style: costTextStyle.copyWith(
                   decoration: TextDecoration.lineThrough,
+                  color: Colors.grey,
                 ),
               ),
               Text(
                 '원',
-                style: costTextStyle,
+                style: costTextStyle.copyWith(
+                  decoration: TextDecoration.lineThrough,
+                  color: Colors.grey,
+                ),
               ),
             ],
           ),
@@ -101,4 +115,3 @@ class BoardListCard extends StatelessWidget {
     );
   }
 }
-

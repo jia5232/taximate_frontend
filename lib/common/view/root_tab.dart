@@ -42,6 +42,7 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
     // 탭 전환 시 특정 스크린의 상태를 새로고침
     switch (index) {
       case 0:
+        ref.read(postStateNotifierProvider.notifier).lastPostId = 0;
         ref.read(postStateNotifierProvider.notifier).paginate(forceRefetch: true);
         break;
       case 1:

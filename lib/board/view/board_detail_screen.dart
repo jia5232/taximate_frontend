@@ -106,10 +106,10 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     );
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
@@ -174,91 +174,105 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     return RichText(
       text: TextSpan(children: spans),
     );
+
   }
 
   Widget _buildTitle(BuildContext context) {
     final textStyle = TextStyle(
-      fontSize: 14.0,
+      fontSize: 16.0,
+      fontWeight: FontWeight.bold,
+      color: Colors.black87,
     );
 
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: 70.0,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(color: Colors.grey.shade400),
           bottom: BorderSide(color: Colors.grey.shade400),
-          left: BorderSide(color: Colors.transparent),
-          right: BorderSide(color: Colors.transparent),
         ),
+        color: Colors.white,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  widget.post.depart,
-                  style: textStyle,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                widget.post.depart,
+                style: textStyle,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Icon(
+                  Icons.arrow_forward,
+                  size: 16.0,
+                  color: Colors.grey,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.arrow_forward,
-                    size: 16.0,
-                  ),
-                ),
-                Text(
-                  widget.post.arrive,
-                  style: textStyle,
-                ),
-                SizedBox(width: 4.0),
-                Icon(
-                  Icons.person,
-                  color: PRIMARY_COLOR,
-                  size: 18.0,
-                ),
-                Text(widget.post.nowMember.toString()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  '${widget.post.departTime.split(" ")[0]}일 ${widget.post.departTime.split(" ")[1]}분 출발',
-                  style: textStyle,
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              Text(
+                widget.post.arrive,
+                style: textStyle,
+              ),
+              SizedBox(width: 8.0),
+              Icon(
+                Icons.person,
+                color: PRIMARY_COLOR,
+                size: 18.0,
+              ),
+              Text(
+                widget.post.nowMember.toString(),
+                style: textStyle,
+              ),
+            ],
+          ),
+          SizedBox(height: 8.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                '${widget.post.departTime.split(" ")[0]}일 ${widget.post.departTime.split(" ")[1]}분 출발',
+                style: textStyle.copyWith(fontWeight: FontWeight.normal),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _Top(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          onPressed: () async {
-            context.go('/?tabIndex=1');
-          },
-          icon: Icon(Icons.arrow_back_ios_new),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade400),
         ),
-        if (widget.post.isAuthor == false) //글 작성자가 아닌 경우에만 나갈 수 있게 한다.
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
           IconButton(
-            onPressed: () {
-              noticeBeforeLeaveDialog(context);
+            onPressed: () async {
+              context.go('/?tabIndex=1');
             },
-            icon: Icon(
-              Icons.logout,
-              color: Colors.red,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new),
+            color: Colors.black,
           ),
-      ],
+          if (!widget.post.isAuthor) // 글 작성자가 아닌 경우에만 나갈 수 있게 한다.
+            IconButton(
+              onPressed: () {
+                noticeBeforeLeaveDialog(context);
+              },
+              icon: Icon(
+                Icons.logout,
+                color: Colors.red,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
