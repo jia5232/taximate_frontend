@@ -1,17 +1,16 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:taximate/common/const/data.dart';
-import 'package:taximate/common/layout/default_layout.dart';
 import '../../common/component/notice_popup_dialog.dart';
+import '../../common/const/data.dart';
+import '../../common/layout/default_layout.dart';
 import '../../common/provider/dio_provider.dart';
 import '../../member/model/member_model.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
-import '../provider/subway_provider.dart';
 import '../provider/post_state_notifier_provider.dart';
-import '../provider/university_short_name_provider.dart';
 
 class PostUpdateFormScreen extends ConsumerStatefulWidget {
   final int postId;
@@ -41,13 +40,29 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
   DateTime departTime = DateTime.now();
   int cost = 0;
   int maxMember = 0;
-  int nowMember = 1;
+  int nowMember = 1; //고정
+  String? openKakaoLink;
+
+  List<String> _stations = [];
+  List<String> _filteredStations = [];
+  TextEditingController _searchController = TextEditingController();
+  String? _selectedStation; // Initialize as nullable
 
   @override
   void initState() {
     super.initState();
     isSelected = [fromSchool, toSchool];
     _fetchPostData();
+    loadStations().then((stations) {
+      setState(() {
+        _stations = stations;
+        _filteredStations = stations;
+      });
+    });
+
+    _searchController.addListener(() {
+      filterStations();
+    });
   }
 
   Future<void> _fetchPostData() async {
@@ -63,7 +78,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
         ),
       );
       final postData = response.data;
-      print(response.data.toString());
 
       setState(() {
         isFromSchool = postData['isFromSchool'];
@@ -76,6 +90,8 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
         cost = postData['cost'];
         maxMember = postData['maxMember'];
+        _selectedStation = postData['arrive'] ?? postData['depart'];
+        openKakaoLink = postData['openChatLink'];
       });
     } catch (e) {
       getNoticeDialog(context, "오류가 발생했습니다.");
@@ -107,7 +123,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.dateAndTime,
             initialDateTime:
-            selectedDateTime.isBefore(now) ? now : selectedDateTime,
+                selectedDateTime.isBefore(now) ? now : selectedDateTime,
             minimumDate: now, // 최소 시간을 현재 시간으로 설정
             maximumDate: now.add(Duration(days: 1)), // 최대 하루 뒤까지 선택 가능하도록 설정
             onDateTimeChanged: (DateTime newDateTime) {
@@ -162,23 +178,30 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
     );
   }
 
+  Future<List<String>> loadStations() async {
+    final String response =
+        await rootBundle.loadString('asset/jsons/unique_subway_stations.json');
+    final data = await json.decode(response);
+    return List<String>.from(data.map((station) => station['name']));
+  }
+
+  void filterStations() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredStations = _stations.where((station) {
+        return station.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final dio = ref.watch(dioProvider);
-
-    //지하철 정보
-    final subwayState = ref.watch(subwayListNotifierProvider);
-
-    String selectedLine = subwayState.selectedLine;
-    String selectedStation = subwayState.selectedStation;
-
-    final lineAndStations = subwayState.lineAndStations;
 
     final nameTextStyle = TextStyle(
       fontSize: 18.0,
     );
 
-    //TextFormField border style!!
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
       borderSide: BorderSide(
@@ -197,8 +220,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
               children: [
                 _buildTop(ref, context),
                 SizedBox(height: 10),
-                _Notification(),
-                SizedBox(height: 20),
                 ToggleButtons(
                   children: [
                     Padding(
@@ -225,87 +246,88 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                   textStyle: TextStyle(fontSize: 18.0),
                   selectedColor: Colors.black,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              '도착 / 출발역',
-                              style: nameTextStyle,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: fromSchool ? '도착역을 검색하세요' : '출발역을 검색하세요',
+                            border: baseBorder,
+                            enabledBorder: baseBorder,
+                            focusedBorder: baseBorder.copyWith(
+                              borderSide: baseBorder.borderSide.copyWith(
+                                width: 1.5,
+                              ),
                             ),
                           ),
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: selectedLine,
-                                  items: lineAndStations.keys
-                                      .map<DropdownMenuItem<String>>(
-                                          (e) => DropdownMenuItem<String>(
-                                        value: e,
-                                        child: Text(e),
-                                      ))
-                                      .toList(),
-                                  onChanged: (String? value) {
-                                    if (value != null &&
-                                        lineAndStations.containsKey(value)) {
-                                      setState(() {
-                                        selectedLine = value;
-                                        selectedStation =
-                                        lineAndStations[value]!.isNotEmpty
-                                            ? lineAndStations[value]![0]
-                                            : null;
-                                        ref
-                                            .read(subwayListNotifierProvider
-                                            .notifier)
-                                            .setSelectedLine(value);
-                                        if (selectedStation != null) {
-                                          ref
-                                              .read(subwayListNotifierProvider
-                                              .notifier)
-                                              .setSelectedStation(
-                                              selectedStation!);
-                                        }
-                                      });
-                                    }
-                                  },
-                                ),
-                                DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: selectedStation,
-                                  items: lineAndStations[selectedLine]
-                                      ?.map<DropdownMenuItem<String>>(
-                                          (e) => DropdownMenuItem<String>(
-                                        value: e.toString(),
-                                        child: Text(e.toString()),
-                                      ))
-                                      .toList() ??
-                                      [],
-                                  onChanged: (String? value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        selectedStation = value;
-                                        ref
-                                            .read(subwayListNotifierProvider
-                                            .notifier)
-                                            .setSelectedStation(value);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: ListView.builder(
+                          itemCount: _filteredStations.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 2.0, horizontal: 8.0),
+                              child: Card(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Colors.white, // ListTile 배경 색상을 흰색으로 설정
+                                    borderRadius: BorderRadius.circular(
+                                        12.0), // 경계 반경을 12로 설정
+                                    border: Border.all(
+                                      color: Colors.grey.shade200, // 테두리 색상 설정
+                                      width: 1.0, // 테두리 두께 설정
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(_filteredStations[index]),
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedStation =
+                                            _filteredStations[index];
+                                      });
+                                      print('Selected: $_selectedStation');
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (_selectedStation != null)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: fromSchool
+                              ? Text(
+                                  '도착역: $_selectedStation',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.green,
+                                    fontSize: 16.0,
+                                  ),
+                                )
+                              : Text(
+                                  '출발역: $_selectedStation',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.green,
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                        ),
                       SizedBox(height: 10),
                       Row(
                         children: [
@@ -339,7 +361,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                           8, 10, 0, 0),
                                       child: Text(
                                         '${selectedDateTime.month.toString().padLeft(2, '0')}월 ${selectedDateTime.day.toString().padLeft(2, '0')}일 '
-                                            '${selectedDateTime.hour.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}',
+                                        '${selectedDateTime.hour.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}',
                                         style: TextStyle(
                                           fontSize: 14.0,
                                           fontWeight: FontWeight.w500,
@@ -363,11 +385,11 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                         ),
                                       ),
                                       backgroundColor:
-                                      MaterialStateProperty.all(
-                                          Colors.grey[200]),
+                                          MaterialStateProperty.all(
+                                              Colors.grey[200]),
                                       foregroundColor:
-                                      MaterialStateProperty.all(
-                                          Colors.black),
+                                          MaterialStateProperty.all(
+                                              Colors.black),
                                       shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
@@ -410,7 +432,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 cursorColor: Colors.black,
                                 onChanged: (value) {
                                   cost =
-                                  value.isNotEmpty ? int.parse(value) : 0;
+                                      value.isNotEmpty ? int.parse(value) : 0;
                                 },
                                 keyboardType: TextInputType.number,
                                 initialValue: cost.toString(),
@@ -439,11 +461,16 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                         ],
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        '예상 소요금액은 차량 이용에 필요한 총 비용입니다. (1/N가격 아님)',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '예상 소요금액은 차량 이용에 필요한 총 비용입니다.\n(1/N가격 아님)',
+                            style: TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 20),
                       Row(
@@ -464,7 +491,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 cursorColor: Colors.black,
                                 onChanged: (value) {
                                   maxMember =
-                                  value.isNotEmpty ? int.parse(value) : 0;
+                                      value.isNotEmpty ? int.parse(value) : 0;
                                 },
                                 keyboardType: TextInputType.number,
                                 initialValue: maxMember.toString(),
@@ -493,11 +520,57 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                         ],
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        '중형택시 기준 최대 탑승 인원은 운전자 제외 4명입니다. (3명 권장)',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '중형택시 기준 최대 탑승 인원은 운전자 제외 4명입니다.\n(3명 권장)',
+                            style: TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '오픈카톡 링크',
+                              style: nameTextStyle,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 60,
+                              child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    openKakaoLink = value;
+                                  });
+                                },
+                                cursorColor: Colors.black,
+                                maxLines: null, // Allow multiple lines
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(12.0),
+                                  hintText: "오픈 카톡 링크 입력",
+                                  border: baseBorder,
+                                  enabledBorder: baseBorder,
+                                  focusedBorder: baseBorder.copyWith(
+                                    borderSide: baseBorder.borderSide.copyWith(
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                controller:
+                                    TextEditingController(text: openKakaoLink),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 20),
                       SizedBox(
@@ -509,25 +582,33 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                             isFromSchool = fromSchool;
                             String? depart = fromSchool
                                 ? "" // 백엔드에서 사용자의 대학 이름으로 기재함.
-                                : "$selectedStation역";
+                                : "$_selectedStation역";
                             String? arrive =
-                            fromSchool ? "$selectedStation역" : "";
+                                fromSchool ? "$_selectedStation역" : "";
                             final formatDepartTime =
-                            departTime.toIso8601String();
+                                departTime.toIso8601String();
 
                             // 예외 처리
-                            if (selectedStation == null) {
+                            if (_selectedStation == null) {
                               getNoticeDialog(context, "지하철을 선택해주세요.");
+                              return;
                             }
                             if (cost < 4800 || cost > 500000) {
                               getNoticeDialog(context,
                                   "4,800~500,000원 사이\n적절한 금액을 입력해주세요.");
+                              return;
                             }
                             if (maxMember <= 1 || maxMember > 4) {
                               getNoticeDialog(context, "적정 탑승인원은 2~4명 입니다.");
+                              return;
+                            }
+                            if (openKakaoLink == null) {
+                              getNoticeDialog(
+                                  context, "오픈 카카오톡 단체 채팅 링크를 입력해주세요.");
+                              return;
                             }
 
-                            if (selectedStation != null &&
+                            if (_selectedStation != null &&
                                 cost >= 4800 &&
                                 cost <= 500000 &&
                                 maxMember > 1 &&
@@ -543,6 +624,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                     'cost': cost,
                                     'maxMember': maxMember,
                                     "nowMember": nowMember,
+                                    "openChatLink": openKakaoLink,
                                   },
                                   options: Options(
                                     headers: {
@@ -574,9 +656,9 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                               ),
                             ),
                             backgroundColor:
-                            MaterialStateProperty.all(Colors.grey[200]),
+                                MaterialStateProperty.all(Colors.grey[200]),
                             foregroundColor:
-                            MaterialStateProperty.all(Colors.black),
+                                MaterialStateProperty.all(Colors.black),
                             shape: MaterialStateProperty.all(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
@@ -605,9 +687,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
       univName = memberState.univName; // ex.'국민대학교'
     }
 
-    final univShortNameFuture =
-    ref.watch(universityShortNameProvider(univName));
-
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -625,65 +704,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
             onPressed: () {
               Navigator.pop(context);
             },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Notification extends StatelessWidget {
-  const _Notification({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = TextStyle(
-      fontSize: 14.0,
-    );
-
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        borderRadius:
-        BorderRadius.all(Radius.circular(12.0)), //Dialog 내부 컨테이너의 border
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            '방장 안내사항',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '1. 도착지/출발지 및 관련 정보를 정확히 기재해주세요.',
-                style: textStyle,
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                '2. 약속 시간 5분 전까지는 모두 정해진 장소로 모여주세요.',
-                style: textStyle,
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                '3. 택시 호출 및 정산은 만나서 진행해주세요.',
-                style: textStyle,
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              Text(
-                '4. 학교 웹메일 인증하에 운영되므로 부적절한 사건 발생시 민형사상 처벌을 받을 수 있음에 유의바랍니다.',
-                style: textStyle,
-              ),
-            ],
           ),
         ],
       ),
