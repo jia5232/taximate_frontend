@@ -124,7 +124,7 @@ class _BoardListScreenState extends ConsumerState<BoardListScreen> {
           child: BoardListCard.fromModel(boardListModel: pItem),
           onTap: () {
             final postModel = PostModel.fromBoardListModel(pItem);
-            context.goNamed(
+            context.pushNamed(
               'boardDetail',
               extra: postModel, // Convert BoardListModel to PostModel
             );

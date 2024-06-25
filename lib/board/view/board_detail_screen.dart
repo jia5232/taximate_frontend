@@ -256,7 +256,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
         children: [
           IconButton(
             onPressed: () async {
-              context.go('/?tabIndex=1');
+              context.pop();
             },
             icon: Icon(Icons.arrow_back_ios_new),
             color: Colors.black,
