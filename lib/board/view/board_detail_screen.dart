@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taximate/post/model/post_model.dart';
@@ -131,22 +132,47 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
           SizedBox(height: 8.0),
           Divider(color: Colors.grey.shade300),
           SizedBox(height: 8.0),
-          InkWell(
-            onTap: () async {
-              final url = widget.post.openChatLink;
-              if (await canLaunch(url)) {
-                await launch(url);
-              } else {
-                getNoticeDialog(context, "해당 URL을 열 수 없습니다.");
-              }
-            },
-            child: Text(
-              widget.post.openChatLink,
-              style: linkStyle,
-            ),
-          ),
+          _buildLinkText(widget.post.openChatLink, textStyle, linkStyle, context),
         ],
       ),
+    );
+  }
+
+  Widget _buildLinkText(String text, TextStyle textStyle, TextStyle linkStyle, BuildContext context) {
+    final List<InlineSpan> spans = [];
+    final RegExp urlPattern = RegExp(
+      r'((https?|ftp)://[^\s/$.?#].[^\s]*)',
+      caseSensitive: false,
+    );
+
+    text.splitMapJoin(
+      urlPattern,
+      onMatch: (Match match) {
+        spans.add(
+          TextSpan(
+            text: match.group(0),
+            style: linkStyle,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () async {
+                final url = match.group(0);
+                if (await canLaunch(url!)) {
+                  await launch(url);
+                } else {
+                  getNoticeDialog(context, "해당 URL을 열 수 없습니다.");
+                }
+              },
+          ),
+        );
+        return '';
+      },
+      onNonMatch: (String nonMatch) {
+        spans.add(TextSpan(text: nonMatch, style: textStyle));
+        return '';
+      },
+    );
+
+    return RichText(
+      text: TextSpan(children: spans),
     );
   }
 

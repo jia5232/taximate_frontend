@@ -175,8 +175,6 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
               children: [
                 _buildTop(ref, context),
                 SizedBox(height: 10),
-                _Notification(),
-                SizedBox(height: 20),
                 ToggleButtons(
                   children: [
                     Padding(
@@ -203,7 +201,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                   textStyle: TextStyle(fontSize: 18.0),
                   selectedColor: Colors.black,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -213,7 +211,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                         child: TextField(
                           controller: _searchController,
                           decoration: InputDecoration(
-                            hintText: '지하철역을 검색하세요',
+                            hintText: fromSchool ? '도착역을 검색하세요' : '출발역을 검색하세요',
                             border: baseBorder,
                             enabledBorder: baseBorder,
                             focusedBorder: baseBorder.copyWith(
@@ -394,11 +392,16 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                         ],
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        '예상 소요금액은 차량 이용에 필요한 총 비용입니다. (1/N가격 아님)',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '예상 소요금액은 차량 이용에 필요한 총 비용입니다.\n(1/N가격 아님)',
+                            style: TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 20),
                       Row(
@@ -447,11 +450,16 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                         ],
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        '중형택시 기준 최대 탑승 인원은 운전자 제외 4명입니다. (3명 권장)',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '중형택시 기준 최대 탑승 인원은 운전자 제외 4명입니다.\n(3명 권장)',
+                            style: TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 20),
                       Row(
@@ -624,65 +632,6 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
             onPressed: () {
               Navigator.pop(context);
             },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Notification extends StatelessWidget {
-  const _Notification({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = TextStyle(
-      fontSize: 14.0,
-    );
-
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        borderRadius:
-        BorderRadius.all(Radius.circular(12.0)), //Dialog 내부 컨테이너의 border
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            '방장 안내사항',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '1. 도착지/출발지 및 관련 정보를 정확히 기재해주세요.',
-                style: textStyle,
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                '2. 약속 시간 5분 전까지는 모두 정해진 장소로 모여주세요.',
-                style: textStyle,
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                '3. 택시 호출 및 정산은 만나서 진행해주세요.',
-                style: textStyle,
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              Text(
-                '4. 학교 웹메일 인증하에 운영되므로 부적절한 사건 발생시 민형사상 처벌을 받을 수 있음에 유의바랍니다.',
-                style: textStyle,
-              ),
-            ],
           ),
         ],
       ),
