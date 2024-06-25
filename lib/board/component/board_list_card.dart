@@ -18,9 +18,17 @@ class BoardListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> departTimeParts = boardListModel.departTime.split(" ");
+    List<String> departTimeParts = boardListModel.departTime.split("T");
     String datePart = departTimeParts.length > 0 ? departTimeParts[0] : "";
     String timePart = departTimeParts.length > 1 ? departTimeParts[1] : "";
+
+    final discountedPrice = boardListModel.cost ~/ boardListModel.maxMember;
+
+    final costTextStyle = TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.w500,
+      color: PRIMARY_COLOR,
+    );
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
@@ -62,15 +70,32 @@ class BoardListCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                '$datePart일 $timePart 출발',
+                '$datePart일 $timePart분 출발',
                 style: TextStyle(
                   fontSize: 12.0,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16.0),
-          // Add more fields or UI components here if needed
+          SizedBox(height: 10.0),
+          Row(
+            children: [
+              Text(
+                '${boardListModel.maxMember}명 모이면 $discountedPrice원/',
+                style: costTextStyle,
+              ),
+              Text(
+                '${boardListModel.cost}',
+                style: costTextStyle.copyWith(
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
+              Text(
+                '원',
+                style: costTextStyle,
+              ),
+            ],
+          ),
         ],
       ),
     );
