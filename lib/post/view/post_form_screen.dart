@@ -224,17 +224,36 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                       ),
                       Container(
                         height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                         child: ListView.builder(
                           itemCount: _filteredStations.length,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(_filteredStations[index]),
-                              onTap: () {
-                                setState(() {
-                                  _selectedStation = _filteredStations[index];
-                                });
-                                print('Selected: $_selectedStation');
-                              },
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                              child: Card(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white, // ListTile 배경 색상을 흰색으로 설정
+                                    borderRadius: BorderRadius.circular(12.0), // 경계 반경을 12로 설정
+                                    border: Border.all(
+                                      color: Colors.grey.shade200, // 테두리 색상 설정
+                                      width: 1.0, // 테두리 두께 설정
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(_filteredStations[index]),
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedStation = _filteredStations[index];
+                                      });
+                                      print('Selected: $_selectedStation');
+                                    },
+                                  ),
+                                ),
+                              ),
                             );
                           },
                         ),
