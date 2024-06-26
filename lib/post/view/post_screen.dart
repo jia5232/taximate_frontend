@@ -119,7 +119,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        context.goNamed(
+        context.pushNamed(
           'boardDetail',
           extra: detailedPostModel,
         );
@@ -469,7 +469,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           if (!isMemberJoinedPost) {
                             await joinPost(pItem.id, detailedPostModel);
                           } else {
-                            context.goNamed(
+                            context.pushNamed(
                               'boardDetail',
                               extra: detailedPostModel,
                             );

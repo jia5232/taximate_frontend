@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
 
 import '../../board/view/board_list_screen.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
@@ -46,6 +47,8 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
         ref.read(postStateNotifierProvider.notifier).paginate(forceRefetch: true);
         break;
       case 1:
+        ref.read(boardListStateNotifierProvider.notifier).lastPostId = 0;
+        ref.read(boardListStateNotifierProvider.notifier).paginate(forceRefetch: true);
         break;
       case 2:
         ref.read(memberStateNotifierProvider);

@@ -36,7 +36,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
           onPressed: () async {
             try {
               final dio = ref.read(dioProvider);
-              final resp = await dio.delete(
+              final resp = await dio.post(
                 "http://$ip/posts/leave/${widget.post.id}",
                 options: Options(
                   headers: {
