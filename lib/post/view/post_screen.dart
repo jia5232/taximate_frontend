@@ -119,9 +119,11 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
+        final pItem = await ref.read(postRepositoryProvider)
+            .getPostDetail(id: detailedPostModel.id);
         context.pushNamed(
           'boardDetail',
-          extra: detailedPostModel,
+          extra: pItem,
         );
       }
     } on DioException catch (e) {
@@ -152,7 +154,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        ref.refresh(postStateNotifierProvider);
+        ref.refresh(postStateNotifierProvider.notifier).paginate(forceRefetch: true);
       }
     } on DioException catch (e) {
       showDialog(
@@ -469,6 +471,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           if (!isMemberJoinedPost) {
                             await joinPost(pItem.id, detailedPostModel);
                           } else {
+                            ref.refresh(postRepositoryProvider)
+                                .getPostDetail(id: pItem.id);
                             context.pushNamed(
                               'boardDetail',
                               extra: detailedPostModel,
