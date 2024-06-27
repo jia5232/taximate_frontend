@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../board/provider/board_list_state_notifier_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
@@ -171,6 +172,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
               await ref.read(postStateNotifierProvider.notifier).getMyPosts();
             } else {
               ref.refresh(postStateNotifierProvider);
+              ref.refresh(boardListStateNotifierProvider);
             }
           },
         );
