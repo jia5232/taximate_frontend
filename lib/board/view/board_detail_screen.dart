@@ -13,6 +13,7 @@ import '../../common/const/colors.dart';
 import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
 import '../../common/provider/dio_provider.dart';
+import '../provider/board_list_state_notifier_provider.dart';
 
 class BoardDetailScreen extends ConsumerStatefulWidget {
   static String get routeName => 'boardDetail';
@@ -48,6 +49,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
                 ),
               );
               if (resp.statusCode == 200) {
+                ref.refresh(boardListStateNotifierProvider);
                 context.go('/?tabIndex=1');
               }
             } catch (e) {

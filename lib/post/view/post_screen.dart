@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
 import 'package:taximate/common/const/colors.dart';
 import 'package:taximate/common/layout/default_layout.dart';
 import 'package:taximate/common/model/cursor_pagination_model.dart';
@@ -121,6 +122,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       if (resp.statusCode == 200) {
         final pItem = await ref.read(postRepositoryProvider)
             .getPostDetail(id: detailedPostModel.id);
+        ref.refresh(boardListStateNotifierProvider);
         context.pushNamed(
           'boardDetail',
           extra: pItem,
@@ -472,6 +474,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                             await joinPost(pItem.id, detailedPostModel);
                           } else {
                             ref.read(postRepositoryProvider).getPostDetail(id: pItem.id);
+                            ref.refresh(boardListStateNotifierProvider);
                             context.pushNamed(
                               'boardDetail',
                               extra: detailedPostModel,
