@@ -9,7 +9,7 @@ final memberRepositoryProvider = Provider<MemberRepository>(
       (ref) {
     final dio = ref.watch(dioProvider);
 
-    return MemberRepository(dio: dio, baseUrl: 'http://$apiServerBaseUrl');
+    return MemberRepository(dio: dio, baseUrl: 'http://$ip');
   },
 );
 

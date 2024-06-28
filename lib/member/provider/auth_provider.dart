@@ -1,14 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:taximate/chat/view/chat_list_screen.dart';
-import 'package:taximate/chat/view/chat_screen.dart';
-import 'package:taximate/common/view/root_tab.dart';
-import 'package:taximate/common/view/splash_screen.dart';
-import 'package:taximate/member/provider/member_state_notifier_provider.dart';
-import 'package:taximate/member/view/login_screen.dart';
 
+import '../../board/view/board_detail_screen.dart';
+import '../../board/view/board_list_screen.dart';
+import '../../common/view/root_tab.dart';
+import '../../common/view/splash_screen.dart';
+import '../../post/model/post_model.dart';
 import '../model/member_model.dart';
+import '../view/login_screen.dart';
+import 'member_state_notifier_provider.dart';
 
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
   return AuthProvider(ref: ref);
@@ -30,37 +33,40 @@ class AuthProvider extends ChangeNotifier {
   }
 
   List<GoRoute> get routes => [
-        GoRoute(
-          path: '/',
-          name: RootTab.routeName,
-          builder: (context, state) {
-            final tabIndex = state.queryParameters['tabIndex'] != null
-                ? int.tryParse(state.queryParameters['tabIndex']!) ?? 0
-                : 0; // 기본적으로 첫 번째 탭을 보여준다.
-            return RootTab(initialIndex: tabIndex);
-          },
-        ),
-        GoRoute(
-          path: '/splash',
-          name: SplashScreen.routeName,
-          builder: (context, state) => SplashScreen(),
-        ),
-        GoRoute(
-          path: '/login',
-          name: LoginScreen.routeName,
-          builder: (context, state) => LoginScreen(),
-        ),
-        GoRoute(
-          path: '/chatList',
-          name: ChatListScreen.routeName,
-          builder: (context, state) => ChatListScreen(),
-        ),
-        GoRoute(
-          path: '/chat',
-          name: ChatScreen.routeName,
-          builder: (context, state) => ChatScreen(),
-        ),
-      ];
+    GoRoute(
+      path: '/',
+      name: RootTab.routeName,
+      builder: (context, state) {
+        final tabIndex = state.queryParameters['tabIndex'] != null
+            ? int.tryParse(state.queryParameters['tabIndex']!) ?? 0
+            : 0; // 기본적으로 첫 번째 탭을 보여준다.
+        return RootTab(initialIndex: tabIndex);
+      },
+    ),
+    GoRoute(
+      path: '/splash',
+      name: SplashScreen.routeName,
+      builder: (context, state) => SplashScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      name: LoginScreen.routeName,
+      builder: (context, state) => LoginScreen(),
+    ),
+    GoRoute(
+      path: '/boardList',
+      name: BoardListScreen.routeName,
+      builder: (context, state) => BoardListScreen(),
+    ),
+    GoRoute(
+      path: '/boardDetail',
+      name: 'boardDetail',
+      builder: (context, state) {
+        final postModel = state.extra as PostModel;
+        return BoardDetailScreen(post: postModel);
+      },
+    ),
+  ];
 
   void logout() {
     ref.read(memberStateNotifierProvider.notifier).logout();

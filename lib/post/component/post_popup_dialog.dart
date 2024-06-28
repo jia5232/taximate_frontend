@@ -101,11 +101,11 @@ class PostPopupDialog extends StatelessWidget {
       ),
       child: Container(
         padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width,
         height: 220.0,
         decoration: BoxDecoration(
           color: Colors.white, // Fill the inside of the container with white
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.all(Radius.circular(12.0)), //Dialog 내부 컨테이너의 border
           boxShadow: [
             BoxShadow(

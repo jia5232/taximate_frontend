@@ -42,7 +42,7 @@ class _PasswordResetEmailInputScreenState extends ConsumerState<PasswordResetEma
 
     try {
       final resp = await dio.post(
-        'http://$apiServerBaseUrl/api/password/reset/request',
+        'http://$ip/api/password/reset/request',
         data: {'email': email},
         options: Options(
           headers: {'Content-Type': 'application/json'},
