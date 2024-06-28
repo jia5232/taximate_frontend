@@ -126,7 +126,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   void onContactPressed() async {
     final Email email = Email(
         body: '문의할 사항을 아래에 작성해주세요.',
-        subject: '[kiri 문의]',
+        subject: '[택시메이트 문의]',
         recipients: ['99jiasmin@gmail.com'],
         cc: [],
         bcc: [],

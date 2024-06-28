@@ -18,6 +18,7 @@ PostModel _$PostModelFromJson(Map<String, dynamic> json) => PostModel(
       isAuthor: json['isAuthor'] as bool,
       openChatLink: json['openChatLink'] as String,
       authorName: json['authorName'] as String,
+      authorId: (json['authorId'] as num).toInt(),
     );
 
 Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
       'isAuthor': instance.isAuthor,
       'openChatLink': instance.openChatLink,
       'authorName': instance.authorName,
+      'authorId': instance.authorId,
     };

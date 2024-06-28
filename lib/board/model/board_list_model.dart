@@ -15,6 +15,7 @@ class BoardListModel {
   final int id;
   final bool isAuthor;
   final String authorName;
+  final int authorId;
 
   BoardListModel({
     required this.isFromSchool,
@@ -28,6 +29,7 @@ class BoardListModel {
     required this.id,
     required this.isAuthor,
     required this.authorName,
+    required this.authorId,
   });
 
   factory BoardListModel.fromJson(Map<String, dynamic> json) => _$BoardListModelFromJson(json);

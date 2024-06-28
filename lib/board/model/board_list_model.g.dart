@@ -19,6 +19,7 @@ BoardListModel _$BoardListModelFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       isAuthor: json['isAuthor'] as bool,
       authorName: json['authorName'] as String,
+      authorId: (json['authorId'] as num).toInt(),
     );
 
 Map<String, dynamic> _$BoardListModelToJson(BoardListModel instance) =>
@@ -34,4 +35,5 @@ Map<String, dynamic> _$BoardListModelToJson(BoardListModel instance) =>
       'id': instance.id,
       'isAuthor': instance.isAuthor,
       'authorName': instance.authorName,
+      'authorId': instance.authorId,
     };

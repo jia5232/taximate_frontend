@@ -22,6 +22,7 @@ class PostModel {
   final bool isAuthor;
   final String openChatLink;
   final String authorName;
+  final int authorId;
 
   PostModel({
     required this.id,
@@ -35,6 +36,7 @@ class PostModel {
     required this.isAuthor,
     required this.openChatLink,
     required this.authorName,
+    required this.authorId,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) => _$PostModelFromJson(json);
@@ -67,6 +69,7 @@ class PostModel {
       isAuthor: boardListModel.isAuthor,
       openChatLink: boardListModel.openChatLink,
       authorName: boardListModel.authorName,
+      authorId: boardListModel.authorId,
     );
   }
 }

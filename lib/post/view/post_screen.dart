@@ -471,8 +471,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           if (!isMemberJoinedPost) {
                             await joinPost(pItem.id, detailedPostModel);
                           } else {
-                            ref.refresh(postRepositoryProvider)
-                                .getPostDetail(id: pItem.id);
+                            ref.read(postRepositoryProvider).getPostDetail(id: pItem.id);
                             context.pushNamed(
                               'boardDetail',
                               extra: detailedPostModel,

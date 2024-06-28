@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taximate/post/model/post_model.dart';
@@ -26,6 +28,7 @@ class BoardDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
+
   void noticeBeforeLeaveDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -71,6 +74,81 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     );
   }
 
+  void reportPost(BuildContext context){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return NoticePopupDialog(
+          message: "해당 글을 신고하시겠습니까? 신고 사항은 24시간 내에 처리됩니다.",
+          buttonText: "신고하기",
+          onPressed: (){
+            onContactPressed(context);
+          },
+        );
+      },
+    );
+  }
+
+  void onContactPressed(BuildContext context) async {
+    final Email email = Email(
+        body: '문의할 사항을 아래에 작성해주세요.',
+        subject: '[택시메이트 문의]',
+        recipients: ['99jiasmin@gmail.com'],
+        cc: [],
+        bcc: [],
+        attachmentPaths: [],
+        isHTML: false);
+
+    try {
+      await FlutterEmailSender.send(email);
+    } catch (error) {
+      String message = '기본 메일 앱을 사용할 수 없습니다. \n이메일로 연락주세요! 99jiasmin@gmail.com';
+      getNoticeDialog(context, message);
+    }
+  }
+
+  void blockMember(BuildContext context, int authorId){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return NoticePopupDialog(
+          message: "방장을 차단하시겠습니까? 앞으로 이 유저가 개최한 모임을 볼 수 없습니다.",
+          buttonText: "차단하기",
+          onPressed: () async {
+            try {
+              final dio = ref.read(dioProvider);
+              final resp = await dio.post(
+                "http://$ip/block/$authorId",
+                options: Options(
+                  headers: {
+                    'accessToken': 'true',
+                  },
+                ),
+              );
+              if (resp.statusCode == 200) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return NoticePopupDialog(
+                      message: "차단이 완료되었습니다.",
+                      buttonText: "닫기",
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                );
+              }
+            } catch (e) {
+              getNoticeDialog(context, "오류가 발생했습니다.");
+            }
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
@@ -85,11 +163,47 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
                 _Top(context),
                 _buildTitle(context),
                 _buildBody(context),
+                const SizedBox(height: 20),
+                _buildReport(context),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildReport(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: (){
+            reportPost(context);
+          },
+          child: Text(
+            '신고하기',
+            style: TextStyle(color: Colors.red.shade300),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Icon(
+            Icons.circle,
+            color: Colors.grey,
+            size: 5.0,
+          ),
+        ),
+        GestureDetector(
+          onTap: (){
+            blockMember(context, widget.post.authorId);
+          },
+          child: Text(
+            '차단하기',
+            style: TextStyle(color: BODY_TEXT_COLOR),
+          ),
+        ),
+      ],
     );
   }
 
@@ -132,13 +246,15 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
           SizedBox(height: 8.0),
           Divider(color: Colors.grey.shade300),
           SizedBox(height: 8.0),
-          _buildLinkText(widget.post.openChatLink, textStyle, linkStyle, context),
+          _buildLinkText(
+              widget.post.openChatLink, textStyle, linkStyle, context),
         ],
       ),
     );
   }
 
-  Widget _buildLinkText(String text, TextStyle textStyle, TextStyle linkStyle, BuildContext context) {
+  Widget _buildLinkText(String text, TextStyle textStyle, TextStyle linkStyle,
+      BuildContext context) {
     final List<InlineSpan> spans = [];
     final RegExp urlPattern = RegExp(
       r'((https?|ftp)://[^\s/$.?#].[^\s]*)',
@@ -174,7 +290,6 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     return RichText(
       text: TextSpan(children: spans),
     );
-
   }
 
   Widget _buildTitle(BuildContext context) {
