@@ -29,6 +29,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
+          backgroundColor: Colors.white,
           title: Text("내 정보"),
           children: [
             Padding(
@@ -85,6 +86,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
+          backgroundColor: Colors.white,
           title: Text("앱 정보"),
           children: [
             Padding(
