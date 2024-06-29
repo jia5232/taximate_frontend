@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
+import 'package:taximate/post/provider/my_post_state_notifier_provider.dart';
 
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
@@ -129,6 +130,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
             Navigator.pop(context);
             ref.refresh(postStateNotifierProvider);
             ref.refresh(boardListStateNotifierProvider);
+            ref.refresh(myPostStateNotifierProvider);
           },
         );
       },
