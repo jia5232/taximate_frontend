@@ -168,7 +168,8 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
                 _buildTitle(context),
                 _buildBody(context),
                 const SizedBox(height: 20),
-                _buildReport(context),
+                if (!widget.post.isAuthor)
+                  _buildReport(context),
               ],
             ),
           ),
