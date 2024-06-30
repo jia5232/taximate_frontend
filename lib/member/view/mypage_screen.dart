@@ -542,7 +542,7 @@ class _Title extends StatelessWidget {
             '반가워요 $nickname님!',
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
