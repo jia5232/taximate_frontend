@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -62,12 +64,15 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final departTimeList = departTime.split(' ');
     final formattedDate = _getFormattedDate(departTime);
+    final isOccupied = nowMember == maxMember;
 
     return Container(
       height: 80.0,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black),
+        color: isOccupied ? Colors.grey[200] : Colors.white,
+        border: isOccupied
+            ? Border.all(color: Colors.grey)
+            : Border.all(color: Colors.black),
         borderRadius: BorderRadius.all(Radius.circular(12.0)),
         boxShadow: [
           BoxShadow(
@@ -91,13 +96,17 @@ class PostCard extends StatelessWidget {
                   isFromSchool: isFromSchool,
                   depart: depart,
                   arrive: arrive,
+                  isOccupied: isOccupied,
                 ),
                 SizedBox(
                   height: 4.0,
                 ),
                 Text(
                   '$formattedDate ${departTimeList[1]} 출발',
-                  style: TextStyle(fontSize: 14.0),
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: isOccupied ? Colors.black45 : Colors.black,
+                  ),
                 ),
               ],
             ),
@@ -108,12 +117,22 @@ class PostCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('방장: $authorName'),
+                Text(
+                  '방장: $authorName',
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: isOccupied ? Colors.black45 : Colors.black,
+                  ),
+                ),
                 SizedBox(
                   height: 4.0,
                 ),
                 Text(
                   '현재인원 $nowMember/$maxMember',
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: isOccupied ? Colors.black45 : Colors.black,
+                  ),
                 ),
               ],
             ),
@@ -128,30 +147,25 @@ class _MainText extends StatelessWidget {
   final bool isFromSchool;
   final String depart;
   final String arrive;
+  final bool isOccupied;
 
-  const _MainText(
-      {required this.isFromSchool,
-      required this.depart,
-      required this.arrive,
-      super.key});
+  const _MainText({
+    required this.isFromSchool,
+    required this.depart,
+    required this.arrive,
+    required this.isOccupied,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (isFromSchool) //학교에서 출발
-      return Text(
-        '$arrive 도착',
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w700,
-        ),
-      );
-    else //학교로 도착
-      return Text(
-        '$depart 출발',
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w700,
-        ),
-      );
+    return Text(
+      isFromSchool ? '$arrive 도착' : '$depart 출발',
+      style: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.w700,
+        color: isOccupied ? Colors.black45 : Colors.black,
+      ),
+    );
   }
 }
