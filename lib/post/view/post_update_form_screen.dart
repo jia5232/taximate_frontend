@@ -583,7 +583,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                         height: 46,
                         child: TextButton(
                           onPressed: () async {
-                            //posts/create으로 요청 보낼때 header에 accessToken 같이 보내야 됨
                             isFromSchool = fromSchool;
                             String? depart = fromSchool
                                 ? "" // 백엔드에서 사용자의 대학 이름으로 기재함.
@@ -692,7 +691,8 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
       univName = memberState.univName; // ex.'국민대학교'
     }
 
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

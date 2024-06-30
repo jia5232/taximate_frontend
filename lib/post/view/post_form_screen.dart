@@ -175,7 +175,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
             child: Column(
               children: [
                 _buildTop(ref, context),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
                 ToggleButtons(
                   children: [
                     Padding(
@@ -632,7 +632,8 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
       univName = memberState.univName; // ex.'국민대학교'
     }
 
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
