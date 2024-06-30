@@ -60,7 +60,7 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: Colors.white,
         selectedItemColor: PRIMARY_COLOR,
         unselectedItemColor: BODY_TEXT_COLOR,
         selectedFontSize: 10.0,

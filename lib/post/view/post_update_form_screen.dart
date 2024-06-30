@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../board/provider/board_list_state_notifier_provider.dart';
+import '../../board/provider/savings_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
 import '../../common/provider/dio_provider.dart';
 import '../../member/model/member_model.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
+import '../provider/my_post_state_notifier_provider.dart';
 import '../provider/post_state_notifier_provider.dart';
 
 class PostUpdateFormScreen extends ConsumerStatefulWidget {
@@ -173,6 +175,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
             } else {
               ref.refresh(postStateNotifierProvider);
               ref.refresh(boardListStateNotifierProvider);
+              ref.refresh(savingsProvider);
             }
           },
         );
