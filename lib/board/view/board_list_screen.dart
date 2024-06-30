@@ -95,42 +95,50 @@ class _BoardListScreenState extends ConsumerState<BoardListScreen> {
 
     final cp = data as CursorPaginationModel;
 
-    return ListView.builder(
-      controller: controller,
-      itemCount: cp.data.length + 1,
-      itemBuilder: (_, index) {
-        if (index == cp.data.length) {
-          return Center(
-            child: cp is CursorPaginationModelFetchingMore
-                ? const CircularProgressIndicator(
-              color: PRIMARY_COLOR,
-            )
-                : const Padding(
-              padding: EdgeInsets.only(top: 16.0),
-              child: Text(
-                'Copyright 2024. JiaKwon all rights reserved.\n',
-                style: TextStyle(
-                  color: BODY_TEXT_COLOR,
-                  fontSize: 12.0,
+    return RefreshIndicator(
+      color: PRIMARY_COLOR,
+      onRefresh: () async {
+        ref.read(boardListStateNotifierProvider.notifier).lastPostId = 0;
+        ref.read(boardListStateNotifierProvider.notifier).paginate(forceRefetch: true);
+      },
+      child: ListView.builder(
+        controller: controller,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: cp.data.length + 1,
+        itemBuilder: (_, index) {
+          if (index == cp.data.length) {
+            return Center(
+              child: cp is CursorPaginationModelFetchingMore
+                  ? const CircularProgressIndicator(
+                color: PRIMARY_COLOR,
+              )
+                  : const Padding(
+                padding: EdgeInsets.only(top: 16.0),
+                child: Text(
+                  'Copyright 2024. JiaKwon all rights reserved.\n',
+                  style: TextStyle(
+                    color: BODY_TEXT_COLOR,
+                    fontSize: 12.0,
+                  ),
                 ),
               ),
-            ),
-          );
-        }
-
-        final pItem = cp.data[index]; //여기는 boardListModel
-
-        return GestureDetector(
-          child: BoardListCard.fromModel(boardListModel: pItem),
-          onTap: () {
-            final postModel = PostModel.fromBoardListModel(pItem);
-            context.pushNamed(
-              'boardDetail',
-              extra: postModel, // Convert BoardListModel to PostModel
             );
-          },
-        );
-      },
+          }
+
+          final pItem = cp.data[index]; //여기는 boardListModel
+
+          return GestureDetector(
+            child: BoardListCard.fromModel(boardListModel: pItem),
+            onTap: () {
+              final postModel = PostModel.fromBoardListModel(pItem);
+              context.pushNamed(
+                'boardDetail',
+                extra: postModel, // Convert BoardListModel to PostModel
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
