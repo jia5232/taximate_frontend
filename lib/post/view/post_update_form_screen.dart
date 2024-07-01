@@ -99,7 +99,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
         cost = postData['cost'];
         maxMember = postData['maxMember'];
         nowMember = postData['nowMember'];
-        _selectedStation = postData['arrive'] ?? postData['depart'];
+        _selectedStation = postData['arrive'].replaceAll(RegExp(r'역$'), '') ?? postData['depart'].replaceAll(RegExp(r'역$'), '');
         openKakaoLink = postData['openChatLink'];
 
         _costController.text = cost.toString();
