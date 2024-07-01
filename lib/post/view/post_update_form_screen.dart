@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../board/provider/board_list_state_notifier_provider.dart';
 import '../../board/provider/savings_provider.dart';
@@ -43,7 +44,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
   DateTime departTime = DateTime.now();
   int cost = 0;
   int maxMember = 0;
-  int nowMember = 1; //고정
+  int nowMember = 0;
   String? openKakaoLink;
 
   List<String> _stations = [];
@@ -51,6 +52,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
   TextEditingController _searchController = TextEditingController();
   TextEditingController _costController = TextEditingController();
   TextEditingController _maxMemberController = TextEditingController();
+  TextEditingController _nowMemberController = TextEditingController();
   TextEditingController _openKakaoLinkController = TextEditingController();
   String? _selectedStation; // Initialize as nullable
 
@@ -96,6 +98,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
         cost = postData['cost'];
         maxMember = postData['maxMember'];
+        nowMember = postData['nowMember'];
         _selectedStation = postData['arrive'] ?? postData['depart'];
         openKakaoLink = postData['openChatLink'];
 

@@ -164,7 +164,7 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
             final pItem = cp.data[index];
 
             return GestureDetector(
-              child: PostCard.fromModel(postModel: pItem),
+              child: PostCard.fromModel(postModel: pItem, isForMyPage: true),
               onTap: () async {
                 final detailedPostModel = await ref
                     .read(postRepositoryProvider)
@@ -183,7 +183,11 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
                       cost: detailedPostModel.cost,
                       isAuthor: detailedPostModel.isAuthor,
                       joinOnPressed: () {
-                        context.goNamed('boardDetail');
+                        ref.refresh(myPostStateNotifierProvider);
+                        context.pushNamed(
+                          'boardDetail',
+                          extra: detailedPostModel,
+                        );
                       },
                       deleteOnPressed: () {
                         noticeBeforeDeleteDialog(context, pItem.id);

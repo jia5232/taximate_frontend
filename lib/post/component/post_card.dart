@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,6 +13,7 @@ class PostCard extends StatelessWidget {
   final int nowMember;
   final bool isAuthor;
   final String authorName;
+  final bool isForMyPage;
 
   const PostCard({
     required this.isFromSchool,
@@ -24,10 +24,11 @@ class PostCard extends StatelessWidget {
     required this.nowMember,
     required this.isAuthor,
     required this.authorName,
+    this.isForMyPage = false,
     super.key,
   });
 
-  factory PostCard.fromModel({required PostModel postModel}) {
+  factory PostCard.fromModel({required PostModel postModel, bool isForMyPage = false}) {
     return PostCard(
       isFromSchool: postModel.isFromSchool,
       depart: postModel.depart,
@@ -37,6 +38,7 @@ class PostCard extends StatelessWidget {
       nowMember: postModel.nowMember,
       isAuthor: postModel.isAuthor,
       authorName: postModel.authorName,
+      isForMyPage: isForMyPage,
     );
   }
 
@@ -69,8 +71,8 @@ class PostCard extends StatelessWidget {
     return Container(
       height: 80.0,
       decoration: BoxDecoration(
-        color: isOccupied ? Colors.grey[200] : Colors.white,
-        border: isOccupied
+        color: isOccupied && !isForMyPage ? Colors.grey[200] : Colors.white,
+        border: isOccupied && !isForMyPage
             ? Border.all(color: Colors.grey)
             : Border.all(color: Colors.black),
         borderRadius: BorderRadius.all(Radius.circular(12.0)),
@@ -79,7 +81,7 @@ class PostCard extends StatelessWidget {
             color: Colors.grey.withOpacity(0.4),
             spreadRadius: 3,
             blurRadius: 4,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -96,7 +98,7 @@ class PostCard extends StatelessWidget {
                   isFromSchool: isFromSchool,
                   depart: depart,
                   arrive: arrive,
-                  isOccupied: isOccupied,
+                  isOccupied: isOccupied && !isForMyPage,
                 ),
                 SizedBox(
                   height: 4.0,
@@ -105,7 +107,7 @@ class PostCard extends StatelessWidget {
                   '$formattedDate ${departTimeList[1]} 출발',
                   style: TextStyle(
                     fontSize: 14.0,
-                    color: isOccupied ? Colors.black45 : Colors.black,
+                    color: isOccupied && !isForMyPage ? Colors.black45 : Colors.black,
                   ),
                 ),
               ],
@@ -121,7 +123,7 @@ class PostCard extends StatelessWidget {
                   '방장: $authorName',
                   style: TextStyle(
                     fontSize: 14.0,
-                    color: isOccupied ? Colors.black45 : Colors.black,
+                    color: isOccupied && !isForMyPage ? Colors.black45 : Colors.black,
                   ),
                 ),
                 SizedBox(
@@ -131,7 +133,7 @@ class PostCard extends StatelessWidget {
                   '현재인원 $nowMember/$maxMember',
                   style: TextStyle(
                     fontSize: 14.0,
-                    color: isOccupied ? Colors.black45 : Colors.black,
+                    color: isOccupied && !isForMyPage ? Colors.black45 : Colors.black,
                   ),
                 ),
               ],
