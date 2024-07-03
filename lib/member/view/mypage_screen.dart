@@ -3,12 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
 import 'package:taximate/common/layout/default_layout.dart';
 import 'package:taximate/member/model/member_model.dart';
 import 'package:taximate/member/provider/member_state_notifier_provider.dart';
 import 'package:taximate/member/view/mypage_mypost_screen.dart';
 import 'package:taximate/member/view/mypage_qna_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:taximate/post/provider/my_post_state_notifier_provider.dart';
+import 'package:taximate/post/provider/post_state_notifier_provider.dart';
 import '../../board/provider/savings_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/colors.dart';
@@ -177,6 +180,9 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
           buttonText: "로그아웃",
           onPressed: () {
             ref.read(memberStateNotifierProvider.notifier).logout();
+            ref.refresh(boardListStateNotifierProvider);
+            ref.refresh(myPostStateNotifierProvider);
+            ref.refresh(postStateNotifierProvider);
           },
         );
       },
@@ -201,6 +207,9 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 
       if (response.statusCode == 204) {
         ref.read(memberStateNotifierProvider.notifier).logout();
+        ref.refresh(boardListStateNotifierProvider);
+        ref.refresh(myPostStateNotifierProvider);
+        ref.refresh(postStateNotifierProvider);
         Navigator.of(context).pushReplacementNamed('/login');
       } else {
         showDialog(
