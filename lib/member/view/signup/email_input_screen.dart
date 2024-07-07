@@ -47,7 +47,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
     try {
       final suffixResponse = await dio.post(
-        'http://$ip/validateEmailSuffix',
+        '$awsIp/validateEmailSuffix',
         data: {'email': email, 'univName': widget.university},
         options: Options(
           headers: {'Content-Type': 'application/json'},
@@ -63,7 +63,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
       }
 
       final resp = await dio.post(
-        'http://$ip/email',
+        '$awsIp/email',
         data: {'email': email},
         options: Options(
           headers: {'Content-Type': 'application/json'},

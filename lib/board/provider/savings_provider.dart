@@ -7,7 +7,7 @@ import '../../common/provider/dio_provider.dart';
 final savingsProvider = FutureProvider<int>((ref) async {
   final dio = ref.watch(dioProvider);
   final response = await dio.get(
-    'http://$ip/savings',
+    '$awsIp/savings',
     options: Options(
       headers: {
         'accessToken': 'true',

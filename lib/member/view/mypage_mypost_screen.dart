@@ -55,7 +55,7 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$ip/posts/$postId",
+                "$awsIp/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',

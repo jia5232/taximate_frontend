@@ -196,7 +196,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     if (memberState is MemberModel) {
 
       final response = await dio.delete(
-        "http://$ip/member",
+        "$awsIp/member",
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -207,9 +207,6 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 
       if (response.statusCode == 204) {
         ref.read(memberStateNotifierProvider.notifier).logout();
-        ref.refresh(boardListStateNotifierProvider);
-        ref.refresh(myPostStateNotifierProvider);
-        ref.refresh(postStateNotifierProvider);
         Navigator.of(context).pushReplacementNamed('/login');
       } else {
         showDialog(

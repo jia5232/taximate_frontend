@@ -13,7 +13,6 @@ import '../../common/layout/default_layout.dart';
 import '../../common/provider/dio_provider.dart';
 import '../../member/model/member_model.dart';
 import '../../member/provider/member_state_notifier_provider.dart';
-import '../provider/my_post_state_notifier_provider.dart';
 import '../provider/post_state_notifier_provider.dart';
 
 class PostUpdateFormScreen extends ConsumerStatefulWidget {
@@ -52,7 +51,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
   TextEditingController _searchController = TextEditingController();
   TextEditingController _costController = TextEditingController();
   TextEditingController _maxMemberController = TextEditingController();
-  TextEditingController _nowMemberController = TextEditingController();
   TextEditingController _openKakaoLinkController = TextEditingController();
   String? _selectedStation; // Initialize as nullable
 
@@ -78,7 +76,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
     try {
       final response = await dio.get(
-        "http://$ip/posts/${widget.postId}",
+        "$awsIp/posts/${widget.postId}",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -628,7 +626,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 maxMember <= 4) {
                               try {
                                 final resp = await dio.put(
-                                  "http://$ip/posts/${widget.postId}",
+                                  "$awsIp/posts/${widget.postId}",
                                   data: {
                                     'isFromSchool': isFromSchool,
                                     'depart': depart,

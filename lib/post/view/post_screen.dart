@@ -81,7 +81,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$ip/posts/$postId",
+                "$awsIp/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
-        "http://$ip/posts/join/$postId",
+        "$awsIp/posts/join/$postId",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -149,7 +149,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
-        "http://$ip/posts/leave/$postId",
+        "$awsIp/posts/leave/$postId",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -466,7 +466,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                               final dio = ref.read(dioProvider);
                               try {
                                 final resp = await dio.get(
-                                  'http://$ip/posts/is-joined/${pItem.id}',
+                                  '$awsIp/posts/is-joined/${pItem.id}',
                                   options: Options(
                                     headers: {
                                       'accessToken': 'true',

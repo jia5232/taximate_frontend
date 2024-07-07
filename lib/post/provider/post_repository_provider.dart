@@ -9,7 +9,7 @@ import '../../common/const/data.dart';
 final postRepositoryProvider = Provider<PostRepository>(
   (ref){
     final dio = ref.watch(dioProvider);
-    final repository = PostRepository(dio, baseUrl: "http://$ip/posts");
+    final repository = PostRepository(dio, baseUrl: "$awsIp/posts");
     return repository;
   },
 );

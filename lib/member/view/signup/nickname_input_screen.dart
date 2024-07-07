@@ -28,7 +28,7 @@ class _NicknameInputScreenState extends ConsumerState<NicknameInputScreen> {
 
     try {
       final resp = await dio.get(
-        'http://$ip/nicknameExists',
+        '$awsIp/nicknameExists',
         queryParameters: {'nickname': nickname},
       );
       setState(() {

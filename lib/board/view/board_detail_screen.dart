@@ -42,7 +42,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
             try {
               final dio = ref.read(dioProvider);
               final resp = await dio.post(
-                "http://$ip/posts/leave/${widget.post.id}",
+                "$awsIp/posts/leave/${widget.post.id}",
                 options: Options(
                   headers: {
                     'accessToken': 'true',
@@ -122,7 +122,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
             try {
               final dio = ref.read(dioProvider);
               final resp = await dio.post(
-                "http://$ip/block/$authorId",
+                "$awsIp/block/$authorId",
                 options: Options(
                   headers: {
                     'accessToken': 'true',

@@ -46,7 +46,7 @@ class _PasswordResetCodeInputScreenState extends ConsumerState<PasswordResetCode
 
     try {
       final resp = await dio.post(
-        'http://$ip/api/password/reset/confirm',
+        '$awsIp/api/password/reset/confirm',
         data: {'email': email, 'newPassword': newPassword},
         options: Options(
           headers: {'Content-Type': 'application/json'},
