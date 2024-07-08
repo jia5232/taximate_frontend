@@ -14,6 +14,7 @@ import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
 import '../../common/provider/dio_provider.dart';
 import '../provider/board_list_state_notifier_provider.dart';
+import '../provider/savings_provider.dart';
 
 class BoardDetailScreen extends ConsumerStatefulWidget {
   static String get routeName => 'boardDetail';
@@ -41,7 +42,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
             try {
               final dio = ref.read(dioProvider);
               final resp = await dio.post(
-                "http://$ip/posts/leave/${widget.post.id}",
+                "$awsIp/posts/leave/${widget.post.id}",
                 options: Options(
                   headers: {
                     'accessToken': 'true',
@@ -50,6 +51,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
               );
               if (resp.statusCode == 200) {
                 ref.refresh(boardListStateNotifierProvider);
+                ref.refresh(savingsProvider);
                 context.go('/?tabIndex=1');
               }
             } catch (e) {
@@ -120,7 +122,7 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
             try {
               final dio = ref.read(dioProvider);
               final resp = await dio.post(
-                "http://$ip/block/$authorId",
+                "$awsIp/block/$authorId",
                 options: Options(
                   headers: {
                     'accessToken': 'true',
@@ -166,7 +168,8 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
                 _buildTitle(context),
                 _buildBody(context),
                 const SizedBox(height: 20),
-                _buildReport(context),
+                if (!widget.post.isAuthor)
+                  _buildReport(context),
               ],
             ),
           ),

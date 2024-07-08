@@ -22,7 +22,7 @@ class _SchoolSearchScreenState extends ConsumerState<SchoolSearchScreen> {
     final dio = ref.watch(dioProvider);
 
     try {
-      final response = await dio.get('http://$ip/universities/search',
+      final response = await dio.get('$awsIp/universities/search',
           queryParameters: {'searchKeyword': searchKeyword});
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;

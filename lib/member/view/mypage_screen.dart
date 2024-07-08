@@ -1,15 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
 import 'package:taximate/common/layout/default_layout.dart';
 import 'package:taximate/member/model/member_model.dart';
 import 'package:taximate/member/provider/member_state_notifier_provider.dart';
 import 'package:taximate/member/view/mypage_mypost_screen.dart';
 import 'package:taximate/member/view/mypage_qna_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:taximate/post/provider/my_post_state_notifier_provider.dart';
+import 'package:taximate/post/provider/post_state_notifier_provider.dart';
+import '../../board/provider/savings_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/colors.dart';
 import '../../common/const/data.dart';
@@ -29,6 +32,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
+          backgroundColor: Colors.white,
           title: Text("내 정보"),
           children: [
             Padding(
@@ -85,6 +89,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
+          backgroundColor: Colors.white,
           title: Text("앱 정보"),
           children: [
             Padding(
@@ -175,6 +180,9 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
           buttonText: "로그아웃",
           onPressed: () {
             ref.read(memberStateNotifierProvider.notifier).logout();
+            ref.refresh(boardListStateNotifierProvider);
+            ref.refresh(myPostStateNotifierProvider);
+            ref.refresh(postStateNotifierProvider);
           },
         );
       },
@@ -188,7 +196,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     if (memberState is MemberModel) {
 
       final response = await dio.delete(
-        "http://$ip/member",
+        "$awsIp/member",
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -250,6 +258,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
             children: [
               SizedBox(height: 20.0),
               _Title(nickname: nickname),
+              SizedBox(height: 10.0),
+              _buildSavingsBox(ref),
               SizedBox(height: 20.0),
               _buildAccountInfo(ref, context),
               SizedBox(height: 40.0),
@@ -285,6 +295,71 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
               SizedBox(height: 20.0),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavingsBox(WidgetRef ref) {
+    final savingsAsyncValue = ref.watch(savingsProvider);
+
+    return savingsAsyncValue.when(
+      data: (savings) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.lightBlueAccent.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(10.0),
+            border: Border.all(color: Colors.lightBlueAccent, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.savings, color: Colors.lightBlueAccent, size: 30),
+              SizedBox(width: 14.0),
+              Expanded(
+                child: Text(
+                  '택시메이트로 ${DateTime.now().month}월에 절약한 금액:\n${savings.toString()}원',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlueAccent,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => Container(
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.lightBlueAccent.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Colors.lightBlueAccent, width: 1.5),
+        ),
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stack) => Container(
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Colors.redAccent, width: 1.5),
+        ),
+        child: Text(
+          'Error: $error',
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.redAccent,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -473,7 +548,7 @@ class _Title extends StatelessWidget {
             '반가워요 $nickname님!',
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
@@ -510,11 +585,11 @@ class _MenuButton extends StatelessWidget {
         decoration: BoxDecoration(
           border: border == null
               ? Border(
-                  top: BorderSide(color: Colors.transparent),
-                  bottom: BorderSide(color: Colors.grey.shade400),
-                  left: BorderSide(color: Colors.transparent),
-                  right: BorderSide(color: Colors.transparent),
-                )
+            top: BorderSide(color: Colors.transparent),
+            bottom: BorderSide(color: Colors.grey.shade400),
+            left: BorderSide(color: Colors.transparent),
+            right: BorderSide(color: Colors.transparent),
+          )
               : border,
         ),
         width: MediaQuery.of(context).size.width,

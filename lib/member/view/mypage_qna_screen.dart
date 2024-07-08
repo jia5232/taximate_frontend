@@ -88,7 +88,6 @@ class _Top extends StatelessWidget {
           },
           icon: Icon(
             Icons.chevron_left,
-            color: PRIMARY_COLOR,
           ),
         ),
         Image.asset(

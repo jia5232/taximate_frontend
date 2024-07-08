@@ -11,7 +11,7 @@ part 'board_list_repository_provider.g.dart';
 
 final boardListRepositoryProvider = Provider<BoardListRepository>((ref) {
   final dio = ref.watch(dioProvider);
-  final repository = BoardListRepository(dio, baseUrl: "http://$ip/posts");
+  final repository = BoardListRepository(dio, baseUrl: "$awsIp/posts");
   return repository;
 });
 

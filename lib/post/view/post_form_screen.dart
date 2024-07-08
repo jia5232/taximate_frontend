@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taximate/board/provider/board_list_state_notifier_provider.dart';
+import 'package:taximate/post/provider/my_post_state_notifier_provider.dart';
 
+import '../../board/provider/savings_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
@@ -22,15 +24,11 @@ class PostFormScreen extends ConsumerStatefulWidget {
 }
 
 class _PostFormScreenState extends ConsumerState<PostFormScreen> {
-  // toggle button을 위한 정보
   bool fromSchool = true; //학교에서 출발
   bool toSchool = false; //학교로 도착
   late List<bool> isSelected;
 
-  // time picker를 위한 정보
   DateTime selectedDateTime = DateTime.now();
-
-  // post 요청에 필요한 정보
   bool isFromSchool = true;
   DateTime departTime = DateTime.now();
   int cost = 0;
@@ -124,11 +122,12 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
           message: message,
           buttonText: "메인으로 돌아가기",
           onPressed: () {
-            //Dialog를 닫고 로그인페이지로 나가야 하므로 두번 pop.
             Navigator.pop(context);
             Navigator.pop(context);
             ref.refresh(postStateNotifierProvider);
             ref.refresh(boardListStateNotifierProvider);
+            ref.refresh(myPostStateNotifierProvider);
+            ref.refresh(savingsProvider);
           },
         );
       },
@@ -281,7 +280,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                             ),
                           ),
                         ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 20),
                       Row(
                         children: [
                           Expanded(
@@ -359,7 +358,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 10),
                       Text(
                         '예상 출발시간 5분 전까지는 한 장소에 인원을 모으는 것이 좋습니다.',
                         style: TextStyle(
@@ -412,7 +411,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -470,7 +469,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -527,7 +526,6 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                         height: 46,
                         child: TextButton(
                           onPressed: () async {
-                            //posts/create으로 요청 보낼때 header에 accessToken 같이 보내야 됨
                             isFromSchool = fromSchool;
                             String? depart = fromSchool
                                 ? "" // 백엔드에서 사용자의 대학 이름으로 기재함.
@@ -537,7 +535,6 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                             final formatDepartTime =
                             departTime.toIso8601String();
 
-                            // 예외 처리
                             if (_selectedStation == null) {
                               getNoticeDialog(context, "지하철을 선택해주세요.");
                               return;
@@ -563,7 +560,7 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                                 maxMember <= 4) {
                               try {
                                 final resp = await dio.post(
-                                  "http://$ip/posts/create",
+                                  "$awsIp/posts/create",
                                   data: {
                                     'isFromSchool': isFromSchool,
                                     'depart': depart,
@@ -582,7 +579,6 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
                                   ),
                                 );
                                 if (resp.statusCode == 200) {
-                                  //글 작성자는 글을 작성할 때 joinChatRoom() 처리해둔다. -> 백엔드에서 처리함
                                   getPostResultDialog(
                                       context, "글 등록이 완료되었습니다.");
                                 }
@@ -636,7 +632,8 @@ class _PostFormScreenState extends ConsumerState<PostFormScreen> {
       univName = memberState.univName; // ex.'국민대학교'
     }
 
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

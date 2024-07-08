@@ -50,8 +50,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   void scrollListener() {
     if (controller.offset > controller.position.maxScrollExtent - 150) {
       ref.read(postStateNotifierProvider.notifier).paginate(
-        fetchMore: true,
-      );
+            fetchMore: true,
+          );
     }
   }
 
@@ -81,7 +81,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$ip/posts/$postId",
+                "$awsIp/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
-        "http://$ip/posts/join/$postId",
+        "$awsIp/posts/join/$postId",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -120,7 +120,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        final pItem = await ref.read(postRepositoryProvider)
+        final pItem = await ref
+            .read(postRepositoryProvider)
             .getPostDetail(id: detailedPostModel.id);
         ref.refresh(boardListStateNotifierProvider);
         context.pushNamed(
@@ -148,7 +149,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     final dio = ref.read(dioProvider);
     try {
       final resp = await dio.post(
-        "http://$ip/posts/leave/$postId",
+        "$awsIp/posts/leave/$postId",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -156,7 +157,9 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         ),
       );
       if (resp.statusCode == 200) {
-        ref.refresh(postStateNotifierProvider.notifier).paginate(forceRefetch: true);
+        ref
+            .refresh(postStateNotifierProvider.notifier)
+            .paginate(forceRefetch: true);
       }
     } on DioException catch (e) {
       showDialog(
@@ -313,8 +316,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       fillColor: Colors.transparent,
       renderBorder: true,
       constraints: BoxConstraints.expand(
-        width: MediaQuery.of(context).size.width / 2 -
-            borderWidth * 2,
+        width: MediaQuery.of(context).size.width / 2 - borderWidth * 2,
         height: 40,
       ),
       textStyle: TextStyle(fontSize: 18.0),
@@ -421,7 +423,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
+          (BuildContext context, int index) {
             if (index.isOdd) {
               return SizedBox(height: 16.0);
             }
@@ -431,8 +433,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               return Center(
                 child: cp is CursorPaginationModelFetchingMore
                     ? CircularProgressIndicator(
-                  color: PRIMARY_COLOR,
-                )
+                        color: PRIMARY_COLOR,
+                      )
                     : SizedBox.shrink(),
               );
             }
@@ -440,71 +442,76 @@ class _PostScreenState extends ConsumerState<PostScreen> {
             final pItem = cp.data[itemIndex];
 
             return GestureDetector(
+              onTap: pItem.nowMember == pItem.maxMember
+                  ? null
+                  : () async {
+                      // 수정
+                      final detailedPostModel = await ref
+                          .read(postRepositoryProvider)
+                          .getPostDetail(id: pItem.id);
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return PostPopupDialog(
+                            id: pItem.id,
+                            isFromSchool: detailedPostModel.isFromSchool,
+                            depart: detailedPostModel.depart,
+                            arrive: detailedPostModel.arrive,
+                            departTime: detailedPostModel.departTime,
+                            maxMember: detailedPostModel.maxMember,
+                            nowMember: detailedPostModel.nowMember,
+                            cost: detailedPostModel.cost,
+                            isAuthor: detailedPostModel.isAuthor,
+                            joinOnPressed: () async {
+                              final dio = ref.read(dioProvider);
+                              try {
+                                final resp = await dio.get(
+                                  '$awsIp/posts/is-joined/${pItem.id}',
+                                  options: Options(
+                                    headers: {
+                                      'accessToken': 'true',
+                                    },
+                                  ),
+                                );
+                                final isMemberJoinedPost = resp.data;
+                                if (!isMemberJoinedPost) {
+                                  await joinPost(pItem.id, detailedPostModel);
+                                } else {
+                                  ref
+                                      .read(postRepositoryProvider)
+                                      .getPostDetail(id: pItem.id);
+                                  ref.refresh(boardListStateNotifierProvider);
+                                  context.pushNamed(
+                                    'boardDetail',
+                                    extra: detailedPostModel,
+                                  );
+                                }
+                              } on DioException catch (e) {
+                                getNoticeDialog(
+                                  context,
+                                  e.response?.data["message"] ?? "에러 발생",
+                                );
+                              }
+                            },
+                            deleteOnPressed: () {
+                              noticeBeforeDeleteDialog(context, pItem.id);
+                            },
+                            updateOnPressed: () {
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => PostUpdateFormScreen(
+                                    postId: pItem.id,
+                                    isMypageUpdate: false,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
               child: PostCard.fromModel(postModel: pItem),
-              onTap: () async {
-                final detailedPostModel = await ref
-                    .read(postRepositoryProvider)
-                    .getPostDetail(id: pItem.id);
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return PostPopupDialog(
-                      id: pItem.id,
-                      isFromSchool: detailedPostModel.isFromSchool,
-                      depart: detailedPostModel.depart,
-                      arrive: detailedPostModel.arrive,
-                      departTime: detailedPostModel.departTime,
-                      maxMember: detailedPostModel.maxMember,
-                      nowMember: detailedPostModel.nowMember,
-                      cost: detailedPostModel.cost,
-                      isAuthor: detailedPostModel.isAuthor,
-                      joinOnPressed: () async {
-                        final dio = ref.read(dioProvider);
-                        try {
-                          final resp = await dio.get(
-                            'http://$ip/posts/is-joined/${pItem.id}',
-                            options: Options(
-                              headers: {
-                                'accessToken': 'true',
-                              },
-                            ),
-                          );
-                          final isMemberJoinedPost = resp.data;
-                          if (!isMemberJoinedPost) {
-                            await joinPost(pItem.id, detailedPostModel);
-                          } else {
-                            ref.read(postRepositoryProvider).getPostDetail(id: pItem.id);
-                            ref.refresh(boardListStateNotifierProvider);
-                            context.pushNamed(
-                              'boardDetail',
-                              extra: detailedPostModel,
-                            );
-                          }
-                        } on DioException catch (e) {
-                          getNoticeDialog(
-                            context,
-                            e.response?.data["message"] ?? "에러 발생",
-                          );
-                        }
-                      },
-                      deleteOnPressed: () {
-                        noticeBeforeDeleteDialog(context, pItem.id);
-                      },
-                      updateOnPressed: () {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PostUpdateFormScreen(
-                              postId: pItem.id,
-                              isMypageUpdate: false,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
             );
           },
           childCount: cp.data.length * 2,

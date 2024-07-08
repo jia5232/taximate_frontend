@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,8 +27,6 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
   final ScrollController controller = ScrollController();
 
   void scrollListener() {
-    // 현재 위치가 최대 길이보다 조금 덜되는 위치까지 왔다면 새로운 데이터를 추가 요청.
-    // 현재 컨트롤러 위치가(controller.offset) 컨트롤러의 최대 크기 - n 보다 크면 요청을 보낸다.
     if (controller.offset > controller.position.maxScrollExtent - 150) {
       ref.read(myPostStateNotifierProvider.notifier).paginate(fetchMore: true);
     }
@@ -38,7 +37,11 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
     super.initState();
     controller.addListener(scrollListener);
     Future.microtask(
-        () => ref.read(myPostStateNotifierProvider.notifier).paginate());
+            () => ref.read(myPostStateNotifierProvider.notifier).paginate());
+  }
+
+  Future<void> _refreshPosts() async {
+    ref.read(myPostStateNotifierProvider.notifier).paginate(forceRefetch: true);
   }
 
   void noticeBeforeDeleteDialog(BuildContext context, int postId) async {
@@ -52,7 +55,7 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
             final dio = ref.read(dioProvider);
             try {
               final resp = await dio.delete(
-                "http://$ip/posts/$postId",
+                "$awsIp/posts/$postId",
                 options: Options(
                   headers: {
                     'Content-Type': 'application/json',
@@ -68,14 +71,14 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
             } on DioException catch (e) {
               Navigator.pop(context);
               Navigator.pop(context);
-              showDialog( // 새로운 팝업 표시
+              showDialog(
                 context: context,
                 builder: (context) {
                   return NoticePopupDialog(
                     message: e.response?.data["message"] ?? "에러 발생",
                     buttonText: "닫기",
                     onPressed: () {
-                      Navigator.pop(context); // 두 번째 팝업 닫기
+                      Navigator.pop(context);
                     },
                   );
                 },
@@ -109,7 +112,6 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
   Widget _buildPostList(
       CursorPaginationModelBase data, WidgetRef ref, BuildContext context) {
     final data = ref.watch(myPostStateNotifierProvider);
-    //postStateNotifierProvider가 postRepository에서 받아온 값을 그대로 돌려주므로 Future builder가 필요없어짐..
 
     if (data is CursorPaginationModelLoading) {
       return Center(
@@ -127,77 +129,90 @@ class _MyPageMyPostScreenState extends ConsumerState<MyPageMyPostScreen> {
 
     final cp = data as CursorPaginationModel;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ListView.separated(
-        controller: controller,
-        itemCount: cp.data.length + 1,
-        itemBuilder: (_, index) {
-          if (index == cp.data.length) {
-            return Center(
-              child: cp is CursorPaginationModelFetchingMore
-                  ? CircularProgressIndicator(
-                      color: PRIMARY_COLOR,
-                    )
-                  : Text(
-                      'Copyright 2024. JiaKwon all rights reserved.\n',
-                      style: TextStyle(
-                        color: BODY_TEXT_COLOR,
-                        fontSize: 12.0,
-                      ),
-                    ),
-            );
-          }
+    if (cp.data.isEmpty) {
+      return Center(
+        child: Text("작성한 글이 없습니다."),
+      );
+    }
 
-          final pItem = cp.data[index];
-
-          return GestureDetector(
-            child: PostCard.fromModel(postModel: pItem),
-            onTap: () async {
-              final detailedPostModel = await ref
-                  .read(postRepositoryProvider)
-                  .getPostDetail(id: pItem.id);
-              //getPostDetail에서 api요청해서 가져오고, PostModel로 변환한다. (retrofit)
-              // final detailedPostModel = await getPostDetail(ref, pItem.id);
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return PostPopupDialog(
-                    id: pItem.id,
-                    isFromSchool: detailedPostModel.isFromSchool,
-                    depart: detailedPostModel.depart,
-                    arrive: detailedPostModel.arrive,
-                    departTime: detailedPostModel.departTime,
-                    maxMember: detailedPostModel.maxMember,
-                    nowMember: detailedPostModel.nowMember,
-                    cost: detailedPostModel.cost,
-                    isAuthor: detailedPostModel.isAuthor,
-                    joinOnPressed: () {
-                      context.goNamed('boardDetail');
-                    },
-                    deleteOnPressed: () {
-                      noticeBeforeDeleteDialog(context, pItem.id);
-                    },
-                    updateOnPressed: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PostUpdateFormScreen(
-                            postId: pItem.id,
-                            isMypageUpdate: true,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
+    return RefreshIndicator(
+      color: PRIMARY_COLOR,
+      onRefresh: _refreshPosts,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: ListView.separated(
+          controller: controller,
+          physics: AlwaysScrollableScrollPhysics(),
+          itemCount: cp.data.length + 1,
+          itemBuilder: (_, index) {
+            if (index == cp.data.length) {
+              return Center(
+                child: cp is CursorPaginationModelFetchingMore
+                    ? CircularProgressIndicator(
+                  color: PRIMARY_COLOR,
+                )
+                    : Text(
+                  'Copyright 2024. JiaKwon all rights reserved.\n',
+                  style: TextStyle(
+                    color: BODY_TEXT_COLOR,
+                    fontSize: 12.0,
+                  ),
+                ),
               );
-            },
-          );
-        },
-        separatorBuilder: (_, index) {
-          return SizedBox(height: 16.0);
-        },
+            }
+
+            final pItem = cp.data[index];
+
+            return GestureDetector(
+              child: PostCard.fromModel(postModel: pItem, isForMyPage: true),
+              onTap: () async {
+                final detailedPostModel = await ref
+                    .read(postRepositoryProvider)
+                    .getPostDetail(id: pItem.id);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return PostPopupDialog(
+                      id: pItem.id,
+                      isFromSchool: detailedPostModel.isFromSchool,
+                      depart: detailedPostModel.depart,
+                      arrive: detailedPostModel.arrive,
+                      departTime: detailedPostModel.departTime,
+                      maxMember: detailedPostModel.maxMember,
+                      nowMember: detailedPostModel.nowMember,
+                      cost: detailedPostModel.cost,
+                      isAuthor: detailedPostModel.isAuthor,
+                      joinOnPressed: () {
+                        ref.refresh(myPostStateNotifierProvider);
+                        context.pushNamed(
+                          'boardDetail',
+                          extra: detailedPostModel,
+                        );
+                      },
+                      deleteOnPressed: () {
+                        noticeBeforeDeleteDialog(context, pItem.id);
+                      },
+                      updateOnPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => PostUpdateFormScreen(
+                              postId: pItem.id,
+                              isMypageUpdate: true,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+          separatorBuilder: (_, index) {
+            return SizedBox(height: 16.0);
+          },
+        ),
       ),
     );
   }
@@ -220,13 +235,14 @@ class _Top extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        SizedBox(width: 90),
-        const Text(
-          '내가 작성한 글',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
+        Center(
+          child: const Text(
+            '내가 작성한 글',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
           ),
         ),
       ],

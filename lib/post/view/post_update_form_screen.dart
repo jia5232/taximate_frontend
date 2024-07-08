@@ -3,8 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../board/provider/board_list_state_notifier_provider.dart';
+import '../../board/provider/savings_provider.dart';
 import '../../common/component/notice_popup_dialog.dart';
 import '../../common/const/data.dart';
 import '../../common/layout/default_layout.dart';
@@ -41,12 +43,15 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
   DateTime departTime = DateTime.now();
   int cost = 0;
   int maxMember = 0;
-  int nowMember = 1; //고정
+  int nowMember = 0;
   String? openKakaoLink;
 
   List<String> _stations = [];
   List<String> _filteredStations = [];
   TextEditingController _searchController = TextEditingController();
+  TextEditingController _costController = TextEditingController();
+  TextEditingController _maxMemberController = TextEditingController();
+  TextEditingController _openKakaoLinkController = TextEditingController();
   String? _selectedStation; // Initialize as nullable
 
   @override
@@ -71,7 +76,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
     try {
       final response = await dio.get(
-        "http://$ip/posts/${widget.postId}",
+        "$awsIp/posts/${widget.postId}",
         options: Options(
           headers: {
             'accessToken': 'true',
@@ -91,8 +96,13 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
         cost = postData['cost'];
         maxMember = postData['maxMember'];
-        _selectedStation = postData['arrive'] ?? postData['depart'];
+        nowMember = postData['nowMember'];
+        _selectedStation = postData['arrive'].replaceAll(RegExp(r'역$'), '') ?? postData['depart'].replaceAll(RegExp(r'역$'), '');
         openKakaoLink = postData['openChatLink'];
+
+        _costController.text = cost.toString();
+        _maxMemberController.text = maxMember.toString();
+        _openKakaoLinkController.text = openKakaoLink ?? '';
       });
     } catch (e) {
       getNoticeDialog(context, "오류가 발생했습니다.");
@@ -124,7 +134,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.dateAndTime,
             initialDateTime:
-                selectedDateTime.isBefore(now) ? now : selectedDateTime,
+            selectedDateTime.isBefore(now) ? now : selectedDateTime,
             minimumDate: now, // 최소 시간을 현재 시간으로 설정
             maximumDate: now.add(Duration(days: 1)), // 최대 하루 뒤까지 선택 가능하도록 설정
             onDateTimeChanged: (DateTime newDateTime) {
@@ -173,6 +183,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
             } else {
               ref.refresh(postStateNotifierProvider);
               ref.refresh(boardListStateNotifierProvider);
+              ref.refresh(savingsProvider);
             }
           },
         );
@@ -182,7 +193,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
 
   Future<List<String>> loadStations() async {
     final String response =
-        await rootBundle.loadString('asset/jsons/unique_subway_stations.json');
+    await rootBundle.loadString('asset/jsons/unique_subway_stations.json');
     final data = await json.decode(response);
     return List<String>.from(data.map((station) => station['name']));
   }
@@ -285,7 +296,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color:
-                                        Colors.white, // ListTile 배경 색상을 흰색으로 설정
+                                    Colors.white, // ListTile 배경 색상을 흰색으로 설정
                                     borderRadius: BorderRadius.circular(
                                         12.0), // 경계 반경을 12로 설정
                                     border: Border.all(
@@ -298,7 +309,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                     onTap: () {
                                       setState(() {
                                         _selectedStation =
-                                            _filteredStations[index];
+                                        _filteredStations[index];
                                       });
                                       print('Selected: $_selectedStation');
                                     },
@@ -314,21 +325,21 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: fromSchool
                               ? Text(
-                                  '도착역: $_selectedStation',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.green,
-                                    fontSize: 16.0,
-                                  ),
-                                )
+                            '도착역: $_selectedStation',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.green,
+                              fontSize: 16.0,
+                            ),
+                          )
                               : Text(
-                                  '출발역: $_selectedStation',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.green,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
+                            '출발역: $_selectedStation',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.green,
+                              fontSize: 16.0,
+                            ),
+                          ),
                         ),
                       SizedBox(height: 10),
                       Row(
@@ -363,7 +374,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                           8, 10, 0, 0),
                                       child: Text(
                                         '${selectedDateTime.month.toString().padLeft(2, '0')}월 ${selectedDateTime.day.toString().padLeft(2, '0')}일 '
-                                        '${selectedDateTime.hour.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}',
+                                            '${selectedDateTime.hour.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}',
                                         style: TextStyle(
                                           fontSize: 14.0,
                                           fontWeight: FontWeight.w500,
@@ -387,11 +398,11 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                         ),
                                       ),
                                       backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.grey[200]),
+                                      MaterialStateProperty.all(
+                                          Colors.grey[200]),
                                       foregroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.black),
+                                      MaterialStateProperty.all(
+                                          Colors.black),
                                       shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
@@ -432,12 +443,12 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                               height: 38,
                               child: TextFormField(
                                 cursorColor: Colors.black,
+                                controller: _costController,
                                 onChanged: (value) {
                                   cost =
-                                      value.isNotEmpty ? int.parse(value) : 0;
+                                  value.isNotEmpty ? int.parse(value) : 0;
                                 },
                                 keyboardType: TextInputType.number,
-                                initialValue: cost.toString(),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(12.0),
                                   suffixIcon: Padding(
@@ -491,12 +502,12 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                               height: 38,
                               child: TextFormField(
                                 cursorColor: Colors.black,
+                                controller: _maxMemberController,
                                 onChanged: (value) {
                                   maxMember =
-                                      value.isNotEmpty ? int.parse(value) : 0;
+                                  value.isNotEmpty ? int.parse(value) : 0;
                                 },
                                 keyboardType: TextInputType.number,
-                                initialValue: maxMember.toString(),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.all(12.0),
                                   suffixIcon: Padding(
@@ -554,6 +565,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                     openKakaoLink = value;
                                   });
                                 },
+                                controller: _openKakaoLinkController,
                                 cursorColor: Colors.black,
                                 maxLines: null, // Allow multiple lines
                                 decoration: InputDecoration(
@@ -567,8 +579,6 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                     ),
                                   ),
                                 ),
-                                controller:
-                                    TextEditingController(text: openKakaoLink),
                               ),
                             ),
                           ),
@@ -580,15 +590,14 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                         height: 46,
                         child: TextButton(
                           onPressed: () async {
-                            //posts/create으로 요청 보낼때 header에 accessToken 같이 보내야 됨
                             isFromSchool = fromSchool;
                             String? depart = fromSchool
                                 ? "" // 백엔드에서 사용자의 대학 이름으로 기재함.
                                 : "$_selectedStation역";
                             String? arrive =
-                                fromSchool ? "$_selectedStation역" : "";
+                            fromSchool ? "$_selectedStation역" : "";
                             final formatDepartTime =
-                                departTime.toIso8601String();
+                            departTime.toIso8601String();
 
                             // 예외 처리
                             if (_selectedStation == null) {
@@ -617,7 +626,7 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                                 maxMember <= 4) {
                               try {
                                 final resp = await dio.put(
-                                  "http://$ip/posts/${widget.postId}",
+                                  "$awsIp/posts/${widget.postId}",
                                   data: {
                                     'isFromSchool': isFromSchool,
                                     'depart': depart,
@@ -658,9 +667,9 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
                               ),
                             ),
                             backgroundColor:
-                                MaterialStateProperty.all(Colors.grey[200]),
+                            MaterialStateProperty.all(Colors.grey[200]),
                             foregroundColor:
-                                MaterialStateProperty.all(Colors.black),
+                            MaterialStateProperty.all(Colors.black),
                             shape: MaterialStateProperty.all(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
@@ -689,7 +698,8 @@ class _PostUpdateFormScreenState extends ConsumerState<PostUpdateFormScreen> {
       univName = memberState.univName; // ex.'국민대학교'
     }
 
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

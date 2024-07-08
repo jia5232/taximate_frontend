@@ -60,6 +60,7 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
         selectedItemColor: PRIMARY_COLOR,
         unselectedItemColor: BODY_TEXT_COLOR,
         selectedFontSize: 10.0,
@@ -86,7 +87,7 @@ class _RootTabState extends ConsumerState<RootTab> with SingleTickerProviderStat
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person_outlined,
+              Icons.person,
               size: 30.0,
             ),
             label: '마이페이지',
