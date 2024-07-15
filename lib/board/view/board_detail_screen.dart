@@ -258,8 +258,8 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     );
   }
 
-  Widget _buildLinkText(String text, TextStyle textStyle, TextStyle linkStyle,
-      BuildContext context) {
+
+  Widget _buildLinkText(String text, TextStyle textStyle, TextStyle linkStyle, BuildContext context) {
     final List<InlineSpan> spans = [];
     final RegExp urlPattern = RegExp(
       r'((https?|ftp)://[^\s/$.?#].[^\s]*)',
@@ -269,15 +269,16 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
     text.splitMapJoin(
       urlPattern,
       onMatch: (Match match) {
+        final url = match.group(0)!;
         spans.add(
           TextSpan(
-            text: match.group(0),
+            text: url,
             style: linkStyle,
             recognizer: TapGestureRecognizer()
               ..onTap = () async {
-                final url = match.group(0);
-                if (await canLaunch(url!)) {
-                  await launch(url);
+                final Uri uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
                 } else {
                   getNoticeDialog(context, "해당 URL을 열 수 없습니다.");
                 }
