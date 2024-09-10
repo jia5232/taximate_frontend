@@ -41,7 +41,7 @@ class BoardListStateNotifier extends StateNotifier<CursorPaginationModelBase> {
       if (fetchMore) {
         final pState = state as CursorPaginationModel;
         state = CursorPaginationModelFetchingMore(meta: pState.meta, data: pState.data);
-        lastPostId = pState.data.last.chatRoomId;
+        lastPostId = pState.data.last.id;
       } else {
         if (state is CursorPaginationModel && !forceRefetch) {
           final pState = state as CursorPaginationModel;
