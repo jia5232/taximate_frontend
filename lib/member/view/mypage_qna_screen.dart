@@ -66,6 +66,30 @@ class MyPageQnaScreen extends StatelessWidget {
                 "마이페이지의 \'문의하기\' 버튼을 통해 문의해 주시거나,"
                     "\n99jiasmin@gmail.com로 문의해 주세요.",
               ),
+              IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Text('이걸 발견한 당신! 오늘 행운 가득!!'),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Center(
+                              child: Text('닫기'),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.star),
+              ),
             ],
           ),
         ),
