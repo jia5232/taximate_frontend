@@ -30,7 +30,9 @@ class _BoardListScreenState extends ConsumerState<BoardListScreen> {
   void initState() {
     super.initState();
     controller.addListener(scrollListener);
-    ref.read(boardListStateNotifierProvider.notifier).paginate(); // Initial fetch
+    Future.microtask(() {
+      ref.read(boardListStateNotifierProvider.notifier).paginate();
+    });
   }
 
   @override

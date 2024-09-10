@@ -416,6 +416,17 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   }
 
   Widget _buildNoticeInfo(WidgetRef ref, BuildContext context) {
+    String userPolicy = '''
+    택시메이트는 안전하고 즐거운 서비스 운영을 위해 서비스 운영 규칙을 제정하여 운영하고 있습니다.
+
+1. 불법, 도박, 음란물, 도배, 욕설, 자살 관련 표현 등 사용자들에게 불쾌감을 줄 수 있는 부적절한 모든 컨텐츠(글, 댓글, 사진 등)를 생성하지 않도록 유의해주세요.
+위반 시 게시글이 삭제되고 서비스 이용이 제한될 수 있으며, 관련된 법적 문제 발생시 철저한 불관용 원칙을 적용합니다.
+
+2. 본 플랫폼 택시메이트는 동일한 출발지에서 동일한 목적지로 가기 위한 사용자들의 네트워킹에만 관여하며, 사용자간의 금전 거래, 사기 행위 등 부적절한 행위로 인한 어떤 피해도 책임지지 않습니다. 유의해주세요.
+
+3. 본 플랫폼 택시메이트는 사용자의 웹메일 인증을 기반으로 운영되므로 부적절한 사건 발생시 민사 및 형사 처벌을 받을 수 있습니다. 또한 이를 위해 탈퇴후에도 3년간 회원의 이메일 정보를 보관합니다.
+    ''';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -456,38 +467,14 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
           },
         ),
         _MenuButton(
-          title: "서비스 이용 약관",
+          title: "서비스 운영 규칙",
           onPressed: () {
             showDialog(
               context: context,
               barrierDismissible: true,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  content: Text('서비스 이용 약관'),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Center(
-                        child: Text('닫기'),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
-        _MenuButton(
-          title: "개인정보 처리방침",
-          onPressed: () {
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  content: Text('개인정보 처리 방침'),
+                  content: Text(userPolicy),
                   actions: [
                     ElevatedButton(
                       onPressed: () {
